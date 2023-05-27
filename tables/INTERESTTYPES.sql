@@ -1,7 +1,7 @@
 
--- CREATE INTEREST_TYPES TABLE
+-- CREATE INTEREST_TYPES TABLE (LoaiTK)
 -- Create InterestTypes table
-CREATE TABLE InterestTypes(
+CREATE TABLE InterestTypes( 
 	InterestTypeID CHAR(10) NOT NULL,		-- Ma loai tiet kiem
 	InterestRate DECIMAL(3,2) NOT NULL,		-- Lai suat (%)
 	Term INT NOT NULL,						-- So thang trong ky han
@@ -10,7 +10,7 @@ CREATE TABLE InterestTypes(
 -- Add primary key
 ALTER TABLE InterestTypes ADD CONSTRAINT PK_InterestType PRIMARY KEY (InterestTypeID);
 
-sp_help InterestTypes
+--sp_help InterestTypes
 
 
 -- FEATURE: INCREMENT InterestTypeID AUTOMATICALLY
@@ -35,11 +35,6 @@ DEFAULT dbo.[fnAutoIncrementInterestTypeID]() FOR InterestTypeID
 GO
 
 
---ALTER TABLE InterestTypes
---drop constraint dfAutoIncrementPK;
----- drop the function
---drop function dbo.fnAutoIncrementInterestTypeID
---DROP TABLE InterestTypes
 
 
 -- STORED PROCEDURE: Add New Interest Type
@@ -100,7 +95,14 @@ GO
 --EXEC dbo.updateInterestType 'IT00000002', 0.6
 --GO
 
-SELECT * FROM InterestTypes
+--SELECT * FROM InterestTypes
 
 --DROP PROCEDURE dbo.addInterestType, dbo.updateInterestType 
 
+
+
+--ALTER TABLE InterestTypes
+--drop constraint dfAutoIncrementPK;
+---- drop the function
+--drop function dbo.fnAutoIncrementInterestTypeID
+--DROP TABLE InterestTypes

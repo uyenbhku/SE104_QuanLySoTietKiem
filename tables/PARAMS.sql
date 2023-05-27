@@ -1,5 +1,5 @@
 
--- CREATE PARAMETERS TABLE
+-- CREATE PARAMETERS TABLE (THAMSO)
 -- Create PARAMS table
 CREATE TABLE Params(
 	MinimumDeposit MONEY NOT NULL   -- So tien gui toi thieu
@@ -8,7 +8,8 @@ CREATE TABLE Params(
 
 -- STORED PROCEDURE: UPDATE MINIMUM DEPOSIT VALUE
 GO
-CREATE PROCEDURE dbo.updateMinimumDeposit @NewMinimumDeposit MONEY
+CREATE PROCEDURE dbo.updateMinimumDeposit 
+					@NewMinimumDeposit MONEY
 AS
 BEGIN
 	UPDATE Params 
