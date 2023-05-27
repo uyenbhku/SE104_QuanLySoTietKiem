@@ -29,6 +29,7 @@ dbo.updateInterestType : cập nhật loại tiết kiệm \
 dbo.updateMinimumDeposit : Cập nhật quy định số tiền gửi tối thiểu \
 @Params:
 - `NewMinimumDeposit` MONEY : số tiền gửi tối thiểu cần cập nhật
+
 @Returns:
 - 0: cập nhật thành công
 
@@ -44,14 +45,46 @@ dbo.addDeposit : thêm phiếu gửi tiền, ngày mở phiếu, mã phiếu, st
 
 @Returns:
 - 0: thêm thành công
-- 1: thêm không thành công vì chưa có khách hàng trong database
-- 2: thêm không thành công vì không có loại tiết kiệm này trong database
-- 3: thêm không thành công vì số tiền gửi nhỏ hơn quy định
+- 1: thêm không thành công vì chưa có khách hàng trong database hoặc không có loại tiết kiệm này trong database
+- 2: thêm không thành công vì số tiền gửi nhỏ hơn quy định
 
+<hr>
 
 dbo.deleteDeposit : xóa phiếu gửi tiền \
 @Params:
 - `DepositID` CHAR(10) : Mã phiếu gửi tiền cần xóa
+
 @Returns: 
 - 0: xóa thành công
 - 1: xóa không thành công vì đã quá 30 phút lập phiếu và phiếu còn tiền, để xóa thì phải liên lạc SA
+
+
+<hr>
+
+dbo.getDepositDetailWithDate : tìm phiếu gửi với ngày mở \
+@Params:
+- `OpenedDate` SMALLDATETIME : ngày mở theo định dạng YYYYMMDD
+
+@Returns: 
+- Record set 
+
+
+<hr>
+
+dbo.getDepositDetailWithID : tìm phiếu gửi với MaPGT \
+@Params:
+- `DepositID` CHAR(10) : MaGT
+
+@Returns: 
+- Record set 
+
+
+<hr>
+
+dbo.getDepositDetailWithDateAndID : tìm phiếu gửi với ngày mở và MaPGT \
+@Params:
+- `DepositID` CHAR(10) : MaGT
+- `OpenedDate` SMALLDATETIME : ngày mở theo định dạng YYYYMMDD
+
+@Returns: 
+- Record set 
