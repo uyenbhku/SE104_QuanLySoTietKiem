@@ -1,4 +1,7 @@
 
+USE SAVINGS
+GO
+
 -- CREATE INTEREST_TYPES TABLE (LoaiTK)
 -- Create InterestTypes table
 CREATE TABLE InterestTypes( 
@@ -107,6 +110,6 @@ GO
 
 --ALTER TABLE InterestTypes
 --drop constraint dfAutoIncrementPK;
----- drop the function
+------ drop the function
 --drop function dbo.fnAutoIncrementInterestTypeID
 --DROP TABLE InterestTypes

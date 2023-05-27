@@ -1,3 +1,5 @@
+USE Savings
+GO
 
 -- CREATE PARAMETERS TABLE (THAMSO)
 -- Create PARAMS table

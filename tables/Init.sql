@@ -3,7 +3,7 @@
 CREATE DATABASE Savings
 GO
 
-USE DATABASE Savings
+USE  Savings
 GO
 
 
