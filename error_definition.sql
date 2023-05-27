@@ -1,6 +1,6 @@
-SELECT *
-FROM sys.messages
-WHERE message_id > 50000
+/*
+** KHAI BAO NHUNG MESSAGES KHI CO LOI
+*/
 
 EXECUTE sys.sp_addmessage
 		@msgnum = 50001,
@@ -26,3 +26,7 @@ EXECUTE sys.sp_addmessage
 		@msgtext = N'There is an interest type with that term. Please use update';
 
 
+EXECUTE sys.sp_addmessage
+		@msgnum = 50005,
+		@severity = 16,
+		@msgtext = N'Cannot delete after 30 minutes. Contact SA to delete';
