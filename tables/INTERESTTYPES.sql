@@ -52,7 +52,7 @@ BEGIN
 		END
 	ELSE
 		BEGIN
-			RAISERROR(50004, -1, -1)
+			RETURN 1;
 		END
 END
 GO
@@ -63,20 +63,24 @@ GO
 GO
 CREATE PROCEDURE dbo.updateInterestType 
 			@InterestTypeID CHAR(10), 
-			@InterestRate DECIMAL(3,2) = NULL,
-			@MinimumTimeToWithdrawal INT = NULL
+			@NewInterestRate DECIMAL(3,2) = NULL,
+			@NewMinimumTimeToWithdrawal INT = NULL
 AS
 BEGIN
-	IF (@MinimumTimeToWithdrawal IS NOT NULL)
+	IF (@InterestTypeID NOT IN (SELECT InterestTypeID FROM InterestTypes))
+		BEGIN
+			RETURN 1
+		END
+	IF (@NewMinimumTimeToWithdrawal IS NOT NULL)
 		BEGIN
 			UPDATE InterestTypes
-			SET MinimumTimeToWithdrawal = @MinimumTimeToWithdrawal
+			SET MinimumTimeToWithdrawal = @NewMinimumTimeToWithdrawal
 			WHERE InterestTypeID = @InterestTypeID
 		END
-	IF (@InterestRate IS NOT NULL)
+	IF (@NewInterestRate IS NOT NULL)
 		BEGIN
 			UPDATE InterestTypes
-			SET InterestRate = @InterestRate
+			SET InterestRate = @NewInterestRate
 			WHERE InterestTypeID = @InterestTypeID
 		END
 END
