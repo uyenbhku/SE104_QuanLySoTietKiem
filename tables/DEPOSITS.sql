@@ -60,24 +60,26 @@ ON Deposits
 AFTER INSERT
 AS
 BEGIN
-	DECLARE @DepositID CHAR(10)
-	SELECT @DepositID=DepositID FROM inserted
-	-- Avoid hacking
-	IF (@DepositID NOT LIKE 'D%[0-9]%' OR @DepositID LIKE 'D%[^0-9]%')
-		BEGIN
-			ROLLBACK TRANSACTION
-			RAISERROR(50006, -1, -1)
-			RETURN
-		END
+	-- check if there are any invalid insertions
+	DECLARE @DepositID INT
+	BEGIN TRY
+		SELECT @DepositID=CAST(STUFF(DepositID, 1, 1, '') AS INT) FROM inserted
+	END TRY
+	BEGIN CATCH
+		ROLLBACK TRANSACTION
+		RAISERROR(50008, -1, -1)
+		RETURN
+	END CATCH
 
 	-- protect database integrity by preventing people type in DepositID
-	DECLARE @LatestID CHAR(10)
-	SELECT TOP 1 @LatestID = DepositID
+	DECLARE @SecondLatestID INT 
+	SELECT TOP 1 @SecondLatestID = CAST(STUFF(DepositID, 1, 1, '') AS INT) 
 		FROM (SELECT TOP 2 * 
 			  FROM Deposits
 			  ORDER BY DepositID DESC) AS Top2Rows
 		ORDER BY DepositID 
-	IF (CAST(STUFF(@DepositID, 1, 1, '') AS INT) - 1 != CAST(STUFF(@LatestID, 1, 1, '') AS INT))
+	IF (@SecondLatestID = 1 AND @DepositID > 1 
+		AND @DepositID - 1 != @SecondLatestID)
 		BEGIN
 			ROLLBACK TRANSACTION
 			RAISERROR(50007, -1, -1)
@@ -216,9 +218,9 @@ GO
 --EXEC dbo.getDepositDetailWithDate '2023-05-28'
 --EXEC dbo.deleteDeposit 'D000000002'
 --INSERT INTO Deposits (DepositID, CustomerID, InterestTypeID, Fund)
-		--VALUES ('D00000006@', 'C00000001', 'IT00000001', 8000000);
+--		VALUES ('D00000006@', 'C00000001', 'IT00000001', 8000000);
 
---EXEC dbo.addDeposit 'C00000001', 'IT00000001', 6000000
+--EXEC dbo.addDeposit 'C00000001', 'IT00000001', 600000
 --EXEC dbo.addDeposit 'C00000001', 'IT00000002', 80000000
 --SELECT * FROM Deposits
 --SELECT * from interesttypes
@@ -226,6 +228,8 @@ GO
 --EXEC dbo.addDeposit '' INSERT INTO Deposits (DepositID, CustomerID, InterestTypeID, Fund)
 --		VALUES ('D000000006', 'C00000001', 'IT00000001', 8000000);, 'IT00000001', 6000000
 
+--SELECT * From Customers
+--DELETE FROM Deposits WHERE DepositID = 'D00000006@'
 --SELECT * From Deposits D1
 --	where DepositID NOT IN (
 --		DELETE FROM Deposits 

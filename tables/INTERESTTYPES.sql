@@ -68,7 +68,7 @@ BEGIN
 			  ORDER BY InterestTypeID DESC) AS Top2Rows
 		ORDER BY InterestTypeID 
 	IF (@SecondLatestID = 1 AND @InterestTypeID > 1 
-		AND @InterestTypeID - 1!= @SecondLatestID)
+		AND @InterestTypeID - 1 != @SecondLatestID)
 		BEGIN
 			ROLLBACK TRANSACTION
 			RAISERROR(50007, -1, -1)
@@ -157,7 +157,6 @@ GO
 
 EXEC dbo.addInterestType 0.4, 13, 342
 GO
-
 --EXEC dbo.updateInterestType 'IT00000002', 0.6
 --GO
 
