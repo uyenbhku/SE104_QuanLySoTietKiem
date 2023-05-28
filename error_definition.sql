@@ -49,3 +49,9 @@ EXECUTE sys.sp_addmessage
 		@msgnum = 50008,
 		@severity = 16,
 		@msgtext = N'Invalid InterestTypeID. The system might be hacked';
+
+
+EXECUTE sys.sp_addmessage
+		@msgnum = 50009,
+		@severity = 16,
+		@msgtext = N'Only one parameter record is allowed';
