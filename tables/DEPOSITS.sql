@@ -37,7 +37,7 @@ AS
 BEGIN
     DECLARE @DepositID CHAR(10)
     SET @DepositID = (SELECT TOP 1 'D' + CAST(FORMAT(CAST(STUFF(DepositID, 1, 1, '') AS INT) + 1, '000000000') AS CHAR(10))
-					  FROM Deposits 
+					  FROM Deposits WITH (TABLOCKX) -- to avoid concurrent insertions
 					  ORDER BY DepositID DESC)
     RETURN ISNULL(@DepositID, 'D000000001')
 END

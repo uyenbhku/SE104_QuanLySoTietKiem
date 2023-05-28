@@ -25,7 +25,7 @@ AS
 BEGIN
     DECLARE @InterestTypeID CHAR(10)
     SET @InterestTypeID = (SELECT TOP 1 'IT' + CAST(FORMAT(CAST(STUFF(InterestTypeID, 1, 2, '') AS INT) + 1, '00000000') AS CHAR(10))
-					  FROM InterestTypes
+					  FROM InterestTypes WITH (TABLOCKX) -- to avoid concurrent insertions
 					  ORDER BY InterestTypeID DESC)
     RETURN ISNULL(@InterestTypeID, 'IT00000001')
 END
