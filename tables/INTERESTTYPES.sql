@@ -41,6 +41,49 @@ GO
 
 
 -- STORED PROCEDURE: Add New Interest Type
+--DROP TRIGGER dbo.trgAddInterestType
+-- Create trigger
+GO 
+CREATE TRIGGER dbo.trgAddInterestType
+ON InterestTypes
+AFTER INSERT
+AS
+BEGIN
+	-- check if there are any invalid insertions
+	DECLARE @InterestTypeID CHAR(10)
+	SELECT @InterestTypeID=InterestTypeID FROM inserted
+	-- Avoid hacking
+	IF (@InterestTypeID NOT LIKE 'IT%[0-9]%' OR @InterestTypeID LIKE 'IT%[^0-9]%')
+		BEGIN
+			ROLLBACK TRANSACTION
+			RAISERROR(50008, -1, -1)
+			RETURN
+		END
+
+	-- protect database integrity by preventing people type in DepositID
+	DECLARE @LatestID CHAR(10)
+	SELECT TOP 1 @LatestID = InterestTypeID
+		FROM (SELECT TOP 2 * 
+			  FROM InterestTypes
+			  ORDER BY InterestTypeID DESC) AS Top2Rows
+		ORDER BY InterestTypeID 
+	IF (CAST(STUFF(@InterestTypeID, 1, 2, '') AS INT) - 1 != CAST(STUFF(@LatestID, 1, 2, '') AS INT))
+		BEGIN
+			ROLLBACK TRANSACTION
+			RAISERROR(50007, -1, -1)
+			RETURN
+		END
+	DECLARE @Term INT
+	SELECT @Term=inserted.Term  FROM inserted
+	IF (@Term IN (SELECT Term FROM InterestTypes))
+		BEGIN
+			ROLLBACK TRANSACTION
+			RAISERROR(50004, -1, -1)
+		END
+END
+GO
+
+-- Define procedure
 GO
 CREATE PROCEDURE dbo.addInterestType 
 			@InterestRate DECIMAL(3,2), 
@@ -48,11 +91,16 @@ CREATE PROCEDURE dbo.addInterestType
 			@MinimumTimeToWithdrawal INT = 0
 AS
 BEGIN
-	IF (@Term NOT IN (SELECT Term FROM InterestTypes))
-		BEGIN
-			INSERT INTO InterestTypes(InterestRate, Term, MinimumTimeToWithdrawal)
 	BEGIN TRY
 		INSERT INTO InterestTypes(InterestRate, Term, MinimumTimeToWithdrawal)
+			VALUES (@InterestRate, @Term, @MinimumTimeToWithdrawal)
+	END TRY
+	BEGIN CATCH
+		IF (ERROR_NUMBER() = 50004)
+			BEGIN
+				RETURN 1
+			END
+	END CATCH
 END
 GO
 
@@ -66,22 +114,24 @@ CREATE PROCEDURE dbo.updateInterestType
 			@NewMinimumTimeToWithdrawal INT = NULL
 AS
 BEGIN
-	IF (@InterestTypeID NOT IN (SELECT InterestTypeID FROM InterestTypes))
-		BEGIN
+	BEGIN TRY
+		IF (@NewMinimumTimeToWithdrawal IS NOT NULL)
+			BEGIN
+				UPDATE InterestTypes
+				SET MinimumTimeToWithdrawal = @NewMinimumTimeToWithdrawal
+				WHERE InterestTypeID = @InterestTypeID
+			END
+		IF (@NewInterestRate IS NOT NULL)
+			BEGIN
+				UPDATE InterestTypes
+				SET InterestRate = @NewInterestRate
+				WHERE InterestTypeID = @InterestTypeID
+			END
+	END TRY
+	BEGIN CATCH
+		IF(ERROR_NUMBER() = 547)
 			RETURN 1
-		END
-	IF (@NewMinimumTimeToWithdrawal IS NOT NULL)
-		BEGIN
-			UPDATE InterestTypes
-			SET MinimumTimeToWithdrawal = @NewMinimumTimeToWithdrawal
-			WHERE InterestTypeID = @InterestTypeID
-		END
-	IF (@NewInterestRate IS NOT NULL)
-		BEGIN
-			UPDATE InterestTypes
-			SET InterestRate = @NewInterestRate
-			WHERE InterestTypeID = @InterestTypeID
-		END
+	END CATCH
 END
 GO
 
