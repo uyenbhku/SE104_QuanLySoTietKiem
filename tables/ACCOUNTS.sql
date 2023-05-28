@@ -15,7 +15,7 @@ CREATE TABLE Accounts( -- NGUOIDUNG
 	AccountID INT,
 	Username VARCHAR(20),
 	AccountTypeID VARCHAR(20),
-	AccountPasword VARCHAR(50),
+	AccountPassword VARCHAR(50),
 );
 
 ALTER TABLE Accounts 
