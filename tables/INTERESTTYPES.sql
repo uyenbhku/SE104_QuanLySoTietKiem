@@ -50,24 +50,25 @@ AFTER INSERT
 AS
 BEGIN
 	-- check if there are any invalid insertions
-	DECLARE @InterestTypeID CHAR(10)
-	SELECT @InterestTypeID=InterestTypeID FROM inserted
-	-- Avoid hacking
-	IF (@InterestTypeID NOT LIKE 'IT%[0-9]%' OR @InterestTypeID LIKE 'IT%[^0-9]%')
-		BEGIN
-			ROLLBACK TRANSACTION
-			RAISERROR(50008, -1, -1)
-			RETURN
-		END
+	DECLARE @InterestTypeID INT
+	BEGIN TRY
+		SELECT @InterestTypeID=CAST(STUFF(InterestTypeID, 1, 2, '') AS INT) FROM inserted
+	END TRY
+	BEGIN CATCH
+		ROLLBACK TRANSACTION
+		RAISERROR(50008, -1, -1)
+		RETURN
+	END CATCH
 
 	-- protect database integrity by preventing people type in DepositID
-	DECLARE @LatestID CHAR(10)
-	SELECT TOP 1 @LatestID = InterestTypeID
+	DECLARE @SecondLatestID INT 
+	SELECT TOP 1 @SecondLatestID = CAST(STUFF(InterestTypeID, 1, 2, '') AS INT) 
 		FROM (SELECT TOP 2 * 
 			  FROM InterestTypes
 			  ORDER BY InterestTypeID DESC) AS Top2Rows
 		ORDER BY InterestTypeID 
-	IF (CAST(STUFF(@InterestTypeID, 1, 2, '') AS INT) - 1 != CAST(STUFF(@LatestID, 1, 2, '') AS INT))
+	IF (@SecondLatestID = 1 AND @InterestTypeID > 1 
+		AND @InterestTypeID - 1!= @SecondLatestID)
 		BEGIN
 			ROLLBACK TRANSACTION
 			RAISERROR(50007, -1, -1)
@@ -150,12 +151,11 @@ END
 GO
 
 
-
 ---- TESTING
-EXEC dbo.addInterestType 4.2, 4
+EXEC dbo.addInterestType 5.7, 6
 GO
 
-EXEC dbo.addInterestType 0.4, 0
+EXEC dbo.addInterestType 0.4, 13, 342
 GO
 
 --EXEC dbo.updateInterestType 'IT00000002', 0.6
@@ -166,12 +166,15 @@ GO
 --DROP PROCEDURE dbo.addInterestType, dbo.updateInterestType 
 
 
-
+DELETE FROM InterestTypes
 --ALTER TABLE InterestTypes
 --drop constraint dfAutoIncrementPK;
 ------ drop the function
 --drop function dbo.fnAutoIncrementInterestTypeID
 --DROP TABLE InterestTypes
+
+ALTER TABLE InterestTypes
+drop constraint FK_InterestTypeID
 
 
 EXEC dbo.getInterestTypeWithTerm '4'
