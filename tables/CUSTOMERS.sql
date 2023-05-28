@@ -12,4 +12,4 @@ CREATE TABLE Customers
 	CustomerAddress	VARCHAR(100),
 )
 -- Add primary key
-ALTER TABLE Customers ADD CONSTRAINT PK_Customer PRIMARY KEY (CustomerID)
+ALTER TABLE Customers ADD CONSTRAINT PK_Customers PRIMARY KEY (CustomerID)
