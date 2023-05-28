@@ -43,3 +43,9 @@ EXECUTE sys.sp_addmessage
 		@msgnum = 50007,
 		@severity = 16,
 		@msgtext = N'Violate database integrity';
+
+
+EXECUTE sys.sp_addmessage
+		@msgnum = 50008,
+		@severity = 16,
+		@msgtext = N'Invalid InterestTypeID. The system might be hacked';
