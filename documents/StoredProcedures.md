@@ -30,10 +30,11 @@ dbo.updateInterestType : cập nhật loại tiết kiệm \
 
 dbo.updateMinimumDeposit : Cập nhật quy định số tiền gửi tối thiểu \
 @Params:
-- `NewMinimumDeposit` MONEY : số tiền gửi tối thiểu cần cập nhật
+- `NewMinimumDeposit` TEXT : số tiền gửi tối thiểu cần cập nhật
 
 @Returns:
 - 0: cập nhật thành công
+- 1: cập nhật không thành công vì lỗi dữ liệu
 
 
 
