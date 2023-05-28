@@ -53,7 +53,6 @@ GO
 
 
 -- STORED PROCEDURE: INSERT INTO TABLE
-
 -- Create trigger
 GO
 CREATE TRIGGER trgInsertDeposit
@@ -61,6 +60,30 @@ ON Deposits
 AFTER INSERT
 AS
 BEGIN
+	DECLARE @DepositID CHAR(10)
+	SELECT @DepositID=DepositID FROM inserted
+	-- Avoid hacking
+	IF (@DepositID NOT LIKE 'D%[0-9]%' OR @DepositID LIKE 'D%[^0-9]%')
+		BEGIN
+			ROLLBACK TRANSACTION
+			RAISERROR(50006, -1, -1)
+			RETURN
+		END
+
+	-- protect database integrity by preventing people type in DepositID
+	DECLARE @LatestID CHAR(10)
+	SELECT TOP 1 @LatestID = DepositID
+		FROM (SELECT TOP 2 * 
+			  FROM Deposits
+			  ORDER BY DepositID DESC) AS Top2Rows
+		ORDER BY DepositID 
+	IF (CAST(STUFF(@DepositID, 1, 1, '') AS INT) - 1 != CAST(STUFF(@LatestID, 1, 1, '') AS INT))
+		BEGIN
+			ROLLBACK TRANSACTION
+			RAISERROR(50007, -1, -1)
+			RETURN
+		END
+
 	-- Check if the amount of fund satisfies 
 	DECLARE @MinFund MONEY, 
 			@Fund MONEY
@@ -73,6 +96,7 @@ BEGIN
 		END
 END
 GO
+
 
 -- Define Procedure
 GO
@@ -185,13 +209,24 @@ GO
 --EXEC dbo.getDepositDetailWithID 'D000000001'
 --EXEC dbo.getDepositDetailWithDate '2023-05-28'
 --EXEC dbo.deleteDeposit 'D000000002'
---INSERT INTO Deposits (CustomerID, InterestTypeID, Fund)
---		VALUES ('C00000002', 'IT00000001', 8000000);
+--INSERT INTO Deposits (DepositID, CustomerID, InterestTypeID, Fund)
+		--VALUES ('D00000006@', 'C00000001', 'IT00000001', 8000000);
 
---EXEC dbo.addDeposit 'C00000001', 'IT00000001', 200000
+--EXEC dbo.addDeposit 'C00000001', 'IT00000001', 6000000
 --EXEC dbo.addDeposit 'C00000001', 'IT00000002', 80000000
 --SELECT * FROM Deposits
 --SELECT * from interesttypes
+---- SQL Injection
+--EXEC dbo.addDeposit '' INSERT INTO Deposits (DepositID, CustomerID, InterestTypeID, Fund)
+--		VALUES ('D000000006', 'C00000001', 'IT00000001', 8000000);, 'IT00000001', 6000000
+
+--SELECT * From Deposits D1
+--	where DepositID NOT IN (
+--		DELETE FROM Deposits 
+--		WHERE InterestRate is NULL
+--			OR DepositID LIKE 'D%[^0-9]%'
+--	)
+
 
 --sp_help deposits
 

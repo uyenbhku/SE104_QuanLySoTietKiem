@@ -1,3 +1,5 @@
+** Ở trên API nhớ xử lý SQL Injection nha :))) SQL Injection: https://bobby-tables.com/
+
 # TABLE INTERESTTYPE : bảng LOAITK
 
 dbo.addInterestType : thêm loại tiết kiệm \

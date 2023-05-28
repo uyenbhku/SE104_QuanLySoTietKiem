@@ -51,12 +51,8 @@ BEGIN
 	IF (@Term NOT IN (SELECT Term FROM InterestTypes))
 		BEGIN
 			INSERT INTO InterestTypes(InterestRate, Term, MinimumTimeToWithdrawal)
-				VALUES (@InterestRate, @Term, @MinimumTimeToWithdrawal)
-		END
-	ELSE
-		BEGIN
-			RETURN 1;
-		END
+	BEGIN TRY
+		INSERT INTO InterestTypes(InterestRate, Term, MinimumTimeToWithdrawal)
 END
 GO
 

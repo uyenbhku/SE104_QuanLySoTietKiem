@@ -30,3 +30,16 @@ EXECUTE sys.sp_addmessage
 		@msgnum = 50005,
 		@severity = 16,
 		@msgtext = N'Cannot delete after 30 minutes. Contact SA to delete';
+
+
+EXECUTE sys.sp_addmessage
+		@msgnum = 50006,
+		@severity = 16,
+		@msgtext = N'Invalid DepositID. The system might be hacked';
+
+		
+
+EXECUTE sys.sp_addmessage
+		@msgnum = 50007,
+		@severity = 16,
+		@msgtext = N'Violate database integrity';
