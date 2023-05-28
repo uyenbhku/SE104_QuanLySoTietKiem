@@ -11,6 +11,7 @@ dbo.addInterestType : thêm loại tiết kiệm \
 @Returns:
 - 0: thêm thành công
 - 1: thêm không thành công vì có loại tiết kiệm trùng kỳ hạn
+- 2: Lỗi gì đó
 
 <hr>
 

@@ -73,13 +73,6 @@ BEGIN
 			RAISERROR(50007, -1, -1)
 			RETURN
 		END
-	DECLARE @Term INT
-	SELECT @Term=inserted.Term  FROM inserted
-	IF (@Term IN (SELECT Term FROM InterestTypes))
-		BEGIN
-			ROLLBACK TRANSACTION
-			RAISERROR(50004, -1, -1)
-		END
 END
 GO
 
@@ -92,14 +85,15 @@ CREATE PROCEDURE dbo.addInterestType
 AS
 BEGIN
 	BEGIN TRY
+		IF (@Term IN (SELECT Term FROM InterestTypes))
+			BEGIN
+				RETURN 1
+			END
 		INSERT INTO InterestTypes(InterestRate, Term, MinimumTimeToWithdrawal)
 			VALUES (@InterestRate, @Term, @MinimumTimeToWithdrawal)
 	END TRY
 	BEGIN CATCH
-		IF (ERROR_NUMBER() = 50004)
-			BEGIN
-				RETURN 1
-			END
+		RETURN 2
 	END CATCH
 END
 GO
@@ -137,13 +131,32 @@ GO
 
 
 
+-- STORED PROCEDURE: GET Interest Type 
+GO
+CREATE PROCEDURE dbo.getInterestTypeWithTerm
+			@Term INT = NULL
+AS
+BEGIN
+	SET NOCOUNT ON;
+	IF (@Term IS NULL)
+		BEGIN
+			SELECT * FROM InterestTypes
+		END
+	ELSE
+		BEGIN
+			SELECT * FROM InterestTypes WHERE @Term = Term
+		END
+END
+GO
+
+
 
 ---- TESTING
---EXEC dbo.addInterestType 4.2, 4
---GO
+EXEC dbo.addInterestType 4.2, 4
+GO
 
---EXEC dbo.addInterestType 0.4, 0
---GO
+EXEC dbo.addInterestType 0.4, 0
+GO
 
 --EXEC dbo.updateInterestType 'IT00000002', 0.6
 --GO
@@ -159,3 +172,6 @@ GO
 ------ drop the function
 --drop function dbo.fnAutoIncrementInterestTypeID
 --DROP TABLE InterestTypes
+
+
+EXEC dbo.getInterestTypeWithTerm '4'

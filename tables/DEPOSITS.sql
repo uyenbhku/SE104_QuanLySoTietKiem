@@ -93,7 +93,10 @@ BEGIN
 		BEGIN
 			ROLLBACK TRANSACTION
 			RAISERROR(50002, -1, -1)
+			RETURN;
 		END
+	-- if added successfully
+	
 END
 GO
 
@@ -175,6 +178,7 @@ CREATE PROCEDURE dbo.getDepositDetailWithDate
 			@OpenedDate SMALLDATETIME 
 AS 
 BEGIN
+	SET NOCOUNT ON;
 	SELECT * FROM Deposits
 	WHERE @OpenedDate = CAST(CONVERT(VARCHAR(10), Deposits.OpenedDate, 101) AS DATE)
 END
@@ -186,6 +190,7 @@ CREATE PROCEDURE dbo.getDepositDetailWithID
 			@DepositID CHAR(10)
 AS 
 BEGIN
+	SET NOCOUNT ON;
 	SELECT * FROM Deposits
 	WHERE @DepositID = Deposits.DepositID
 END
@@ -198,6 +203,7 @@ CREATE PROCEDURE dbo.getDepositDetailWithDateAndID
 			@OpenedDate SMALLDATETIME
 AS 
 BEGIN
+	SET NOCOUNT ON;
 	SELECT * FROM Deposits
 	WHERE @DepositID = Deposits.DepositID
 		AND @OpenedDate = CAST(CONVERT(VARCHAR(10), Deposits.OpenedDate, 101) AS DATE)
