@@ -86,7 +86,7 @@ CREATE PROCEDURE dbo.addInterestType
 AS
 BEGIN
 	BEGIN TRY
-		IF (@Term IN (SELECT Term FROM InterestTypes))
+		IF EXISTS (SELECT * FROM InterestTypes WHERE Term = @Term)
 			BEGIN
 				RETURN 1
 			END
