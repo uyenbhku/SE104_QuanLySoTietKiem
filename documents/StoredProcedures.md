@@ -92,3 +92,23 @@ dbo.getDepositDetailWithDateAndID : tìm phiếu gửi với ngày mở và MaPG
 
 @Returns: 
 - Record set 
+
+
+# TABLE PROFITREPORTS + REPORTDETAILS: Bảng báo cáo ngày và chi tiết báo cáo ngày\
+
+dbo.makeReportByDay : tạo báo cáo ngày \
+@Params:
+- `Date` DATE: ngày lập báo cáo theo format dmy
+
+@Returns 
+- Record set: nếu lập thành công
+- 1: nếu ngày lập báo cáo ở tương lai (> hiện tại)
+
+dbo.summaryMonthReport : tổng hợp các báo cáo ngày thành 1 báo cáo tháng \
+@Params:
+- `Month` INT : tháng tổng hợp báo cáo
+- `Year` INT : năm tổng hợp
+
+@Returns:
+- Record set : nếu tổng hợp thành công
+- 1 : nếu tháng, năm không hợp lệ
