@@ -12,7 +12,7 @@ CREATE TABLE ProfitReports (
 
 CREATE TABLE ReportDetails (
 	RecordedDate DATE NOT NULL,
-	InterestTypeID CHAR(10) NOT NULL,
+	InterestTypeID INT NOT NULL,
 	Revenue MONEY,
 	Cost MONEY,
 	Profit MONEY
@@ -43,7 +43,7 @@ BEGIN
 	SET NOCOUNT ON
 	IF (@Date > GETDATE())  -- cannot create reports for the future
 		BEGIN
-			RETURN 1	
+			RETURN 1
 		END
 	-- if exists a report, only update existed record
 	IF EXISTS (SELECT * FROM ProfitReports WHERE RecordedDate=@Date)
@@ -70,10 +70,11 @@ BEGIN
 			(SELECT ISNULL(CAST(TransactionDate AS DATE), @Date) AS RecordedDate, 
 					InterestTypes.InterestTypeID, 
 					-ISNULL(SUM(Changes), 0) AS TotalCost 
-			FROM (SELECT * FROM Transactions
+			FROM (SELECT TOP 1 * FROM Transactions
 					WHERE Changes < 0 -- is a withdrawal
 						AND CAST(TransactionDate AS DATE) = @Date -- at the given date
-					) AS MoneyWithdrawn -- luu nhung transactions vao ngay @Date
+					ORDER BY TransactionDate DESC
+					) AS MoneyWithdrawn -- luu nhung transactions rut tien  vao ngay @Date
 					JOIN Deposits D ON D.DepositID = MoneyWithdrawn.DepositID
 					RIGHT JOIN InterestTypes ON InterestTypes.InterestTypeID = D.InterestTypeID
 					GROUP BY CAST(TransactionDate AS DATE), InterestTypes.InterestTypeID) 
@@ -110,7 +111,6 @@ BEGIN
 	WHERE MONTH(RecordedDate) = @Month AND YEAR(RecordedDate) = @Year
 END
 GO
-
 
 
 ---- TESTING 

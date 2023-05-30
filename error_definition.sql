@@ -55,3 +55,17 @@ EXECUTE sys.sp_addmessage
 		@msgnum = 50009,
 		@severity = 16,
 		@msgtext = N'Only one parameter record is allowed';
+
+
+
+EXECUTE sys.sp_addmessage
+		@msgnum = 50010,
+		@severity = 16,
+		@msgtext = N'Cannot make transaction on this object anymore. (Closed object)';
+		
+
+
+EXECUTE sys.sp_addmessage
+		@msgnum = 50011,
+		@severity = 16,
+		@msgtext = N'Cannot update balance (Changes is NULL)';

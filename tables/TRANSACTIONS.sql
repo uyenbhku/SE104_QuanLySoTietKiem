@@ -1,10 +1,9 @@
 USE Savings
 GO
 
-USE master
 CREATE TABLE Transactions(
-	TransactionID CHAR(10) NOT NULL,
-	DepositID CHAR(10) NOT NULL,
+	TransactionID INT IDENTITY(1,1),
+	DepositID INT NOT NULL,
 	Changes MONEY,
 	Balance MONEY,
 	TransactionDate SMALLDATETIME
@@ -17,28 +16,31 @@ ALTER TABLE Transactions
 ADD CONSTRAINT FK_TransactionID
 FOREIGN KEY (DepositID) REFERENCES Deposits(DepositID);
 
+ALTER TABLE Transactions
+ALTER COLUMN TransactionDate SMALLDATETIME;
 
 
--- FEATURE: INCREMENT InterestTypeID AUTOMATICALLY
--- Create function increment InterestTypeID automatically
-GO
-CREATE FUNCTION dbo.fnAutoIncrementTransactionID ()
-RETURNS CHAR(10)
+GO 
+CREATE TRIGGER trgInsertTransaction
+ON Transactions
+AFTER INSERT
 AS
 BEGIN
-    DECLARE @TransactionID CHAR(10)
-    SET @TransactionID = (SELECT TOP 1 'T' + CAST(FORMAT(CAST(STUFF(TransactionID, 1, 1, '') AS INT) + 1, '000000000') AS CHAR(10))
-					  FROM Transactions WITH (TABLOCKX) -- to avoid concurrent insertions
-					  ORDER BY TransactionID DESC)
-    RETURN ISNULL(@TransactionID, 'T000000001')
+	DECLARE @Status BIT
+	SELECT @Status=Status 
+		FROM Deposits JOIN inserted 
+			ON Deposits.DepositID = inserted.DepositID
+	-- khong duoc insert transaction sau khi phieuGT co status = 0 
+	IF (@Status = 0)
+		BEGIN
+			RAISERROR(50010, -1, -1)
+			RETURN;
+		END
 END
 GO
 
--- Add default constraint to increment ID automatically
-ALTER TABLE Transactions
-ADD CONSTRAINT dfAutoIncrementTransactionIDPK
-DEFAULT dbo.[fnAutoIncrementTransactionID]() FOR TransactionID
-GO
+
+
 
 
 
@@ -46,33 +48,66 @@ GO
 GO
 CREATE PROCEDURE addTransaction
 			@DepositID CHAR(10),
-			@Changes TEXT = NULL -- NULL is automatically increase balance
+			@Changes MONEY 
 AS
 BEGIN
 	IF (@Changes IS NOT NULL)
-	BEGIN
-		BEGIN TRY 
-			DECLARE @NewBalance MONEY
-			SELECT TOP 1 @NewBalance=(Balance + CAST(@Changes AS VARCHAR))
-				FROM Transactions
-				WHERE @DepositID = DepositID
-				ORDER BY TransactionDate DESC
-			INSERT INTO Transactions(DepositID, Changes, Balance, TransactionDate)
-				VALUES(@DepositID, @Changes, @NewBalance, GETDATE())
-		END TRY
-		BEGIN CATCH
-		END CATCH
-	END
+		BEGIN
+			BEGIN TRY 
+				DECLARE @NewBalance MONEY
+				SELECT TOP 1 @NewBalance=(Balance + @Changes)
+					FROM Transactions
+					WHERE @DepositID = DepositID
+					ORDER BY TransactionDate DESC
+				INSERT INTO Transactions(DepositID, Changes, Balance, TransactionDate)
+					VALUES(@DepositID, @Changes, @NewBalance, GETDATE())
+			END TRY
+			BEGIN CATCH
+				RETURN 1;
+			END CATCH
+		END
 	ELSE 
-	BEGIN
-		BEGIN TRY
-			INSERT INTO Transactions(DepositID, Changes)
-				VALUES (@DepositID, @Changes)
-		END TRY
-	END
+		BEGIN
+			RAISERROR(50011, -1, -1);
+		END
 END
 GO
 
 
--- TESTING
+-- Script trong Jobs
+-- step 1:
+-- cap nhat neu den ki han cac phieu hien tai
+INSERT INTO Transactions 
+SELECT Deposits.DepositID, 
+		Balance * Deposits.InterestRate / 100 * NoDays / 360, 
+		Balance * (1+ Deposits.InterestRate/100 * NoDays / 360), GETDATE()
+FROM (SELECT TOP 1 WITH TIES *, DATEDIFF(minute, Transactions.TransactionDate, GETDATE()) AS NoDays
+		FROM Transactions 
+		ORDER BY ROW_NUMBER() OVER(PARTITION BY DepositID ORDER BY TransactionID DESC)) 
+	AS LatestTransactions JOIN Deposits ON LatestTransactions.DepositID = Deposits.DepositID
+	JOIN InterestTypes ON Deposits.InterestTypeID = InterestTypes.InterestTypeID
+WHERE Term > 0 -- co ki han
+	AND Deposits.Status = 1 -- still open
+	AND NoDays % (Term * 30) = 0 -- minutes
 
+-- step 2: 
+-- auto insert phieuGT vao transactions vao 0h ngay hom sau ngay gui 
+INSERT INTO Transactions
+SELECT DepositID, Fund, Fund, GETDATE() 
+FROM Deposits
+WHERE NOT EXISTS (SELECT * FROM Transactions T WHERE DepositID = T.DepositID)
+
+
+SELECT * FROM Transactions
+
+SELECT * FROM Deposits
+SELECT * FROM InterestTypes
+EXEC addInterestType 2.3, 1
+EXEC addInterestType 4.2, 3
+
+-- TESTING
+EXEC dbo.addTransaction 3, 1000
+
+
+
+DELETE FROM Transactions
