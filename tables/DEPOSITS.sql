@@ -219,13 +219,10 @@ GO
 --EXEC dbo.deleteDeposit 'D000000002'
 --INSERT INTO Deposits (DepositID, CustomerID, InterestTypeID, Fund)
 --		VALUES ('D00000006@', 'C00000001', 'IT00000001', 8000000);
-DECLARE @d CHAR(10)
-EXEC @d=dbo.addDeposit '1', 'IT00000002', 80000000
-PRINT @d
-INSERT INTO Customers(CustomerID) values('1')
---EXEC dbo.addDeposit '1', 'IT00000003', 6000000
---
---SELECT * FROM customers Deposits
+
+--EXEC dbo.addDeposit 'C00000001', 'IT00000001', 600000
+--EXEC dbo.addDeposit 'C00000001', 'IT00000002', 80000000
+--SELECT * FROM Deposits
 --SELECT * from interesttypes
 ---- SQL Injection
 --EXEC dbo.addDeposit '' INSERT INTO Deposits (DepositID, CustomerID, InterestTypeID, Fund)
@@ -244,11 +241,3 @@ INSERT INTO Customers(CustomerID) values('1')
 --sp_help deposits
 
 --EXEC dbo.addInterestType 5.2, 0, 15
-
---DROP TABLE Deposits
---DELETE FROM Customers
---Delete From InterestTypes
---sp_help Transactions
-----DROP DATABASE Savings
-
---USE master
