@@ -1,6 +1,8 @@
 USE SAVINGS
 GO
 
+DROP TABLE Customers
+
 -- CREATE CUSTOMER TABLE
 -- Creat Customer table
 CREATE TABLE Customers
