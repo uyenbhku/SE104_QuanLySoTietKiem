@@ -1,6 +1,6 @@
 ** Ở trên API nhớ xử lý SQL Injection nha :))) SQL Injection: https://bobby-tables.com/
 
-# TABLE INTERESTTYPE : bảng LOAITK
+# TABLE INTERESTTYPES : bảng LOAITK
 
 dbo.addInterestType : thêm loại tiết kiệm \
 @Params: 
@@ -10,8 +10,7 @@ dbo.addInterestType : thêm loại tiết kiệm \
 
 @Returns:
 - 0: thêm thành công
-- 1: thêm không thành công vì có loại tiết kiệm trùng kỳ hạn
-- 2: Lỗi gì đó
+- 1: Lỗi gì đó
 
 <hr>
 
@@ -23,7 +22,26 @@ dbo.updateInterestType : cập nhật loại tiết kiệm \
 
 @Returns:
 - 0: cập nhật thành công
-- 1: cập nhật không thành công vì không có loại tiết kiệm tương ứng trong CSDL
+- 1: cập nhật không thành công vì đã có loại tiết kiệm tương ứng trong CSDL
+- 2: Lỗi gì đó
+
+<hr>
+
+dbo.blockInterestType : "khóa" loại tiết kiệm \
+@Params:
+- `InterestTypeID` CHAR(10) : Mã loại tiết kiệm
+
+@Returns:
+- 0: cập nhật thành công
+
+<hr>
+
+dbo.unblockInterestType : "mở khóa" loại tiết kiệm \
+@Params:
+- `InterestTypeID` CHAR(10) : Mã loại tiết kiệm
+
+@Returns:
+- 0: cập nhật thành công
 
 
 
@@ -112,3 +130,48 @@ dbo.summaryMonthReport : tổng hợp các báo cáo ngày thành 1 báo cáo th
 @Returns:
 - Record set : nếu tổng hợp thành công
 - 1 : nếu tháng, năm không hợp lệ
+
+
+
+# TABLE CUSTOMER : bảng KHACHHANG
+
+dbo.addCustomer : thêm khách hàng \
+@Params: 
+- `CustomerName` VARCHAR(40) : Tên khách hàng 
+- `PhoneNumber` VARCHAR(20)	: Số điện thoại 
+- `CitizenID` VARCHAR(20) : Căn cước công dân
+- `CustomerAddress` VARCHAR(100) : Địa chỉ
+
+@Returns:
+- Record set: thêm thành công
+- 1: thêm không thành công vì bị trùng căn cước công dân
+- 2: Lỗi gì đó (có thể do tham số truyền vào bị null)
+
+<hr>
+
+dbo.updateCustomer : cập nhật khách hàng \
+@Params: 
+- `CustomerID` INT : Mã khách hàng
+- `CustomerName` VARCHAR(40) : Tên khách hàng mới 
+- `PhoneNumber` VARCHAR(20)	: Số điện thoại mới
+- `CitizenID` VARCHAR(20) : Căn cước công dân mới
+- `CustomerAddress` VARCHAR(100) : Địa chỉ mới
+
+@Returns:
+- 0: cập nhật thành công
+- 1: Không có sự cập nhật nào xảy ra do tất cả các tham số truyền vào đều là null hoặc không tồn tại mã khách hàng cần cập nhật trong CSDL
+- 2: cập nhật không thành công vì bị trùng căn cước công dân
+- 3: Lỗi gì đó 
+
+<hr>
+
+dbo.getCustomerDetailWithCitizenID : tìm khách hàng với CCCD \
+@Params:
+- `CitizenID` INT : Căn cước công dân
+
+@Returns: 
+- Record set: tìm kiếm thành công
+- 1: Lỗi gì đó
+
+
+
