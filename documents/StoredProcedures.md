@@ -1,4 +1,45 @@
-** Ở trên API nhớ xử lý SQL Injection nha :))) SQL Injection: https://bobby-tables.com/
+# TABLE CUSTOMER : bảng KHACHHANG
+
+dbo.addCustomer : thêm khách hàng mới \
+@Params: 
+- `CustomerName` VARCHAR(40) : Tên khách hàng 
+- `PhoneNumber` VARCHAR(20)	: Số điện thoại 
+- `CitizenID` VARCHAR(20) : Căn cước công dân
+- `CustomerAddress` VARCHAR(100) : Địa chỉ
+
+@Returns:
+- Record set: thêm thành công
+- 1: thêm không thành công vì bị trùng căn cước công dân
+- 2: Lỗi input datatype (có thể do tham số truyền vào bị null)
+
+<hr>
+
+dbo.updateCustomer : thay đổi thông tin khách hàng \
+@Params: 
+- `CustomerID` INT : mã khách hàng
+- `CustomerName` VARCHAR(40) : tên khách hàng (mặc định = NULL)
+- `PhoneNumber`VARCHAR(20) : số điện thoại (mặc định = NULL)
+- `CitizenID` VARCHAR(20) : CCCD/CMND (mặc định = NULL)
+- `CustomerAddress` VARCHAR(100) : địa chỉ (mặc định = NULL) 
+
+@Returns
+- 0: cập nhật thành công
+- 1: Không có sự cập nhật nào xảy ra do tất cả các tham số truyền vào đều là null hoặc không tồn tại mã khách hàng cần cập nhật trong CSDL
+- 2: cập nhật không thành công vì bị trùng căn cước công dân
+- 3: Lỗi input datatype 
+
+<hr>
+
+dbo.getCustomerDetailWithCitizenID : tìm khách hàng với CCCD \
+@Params:
+- `CitizenID` INT : Căn cước công dân
+
+@Returns: 
+- Record set: tìm kiếm thành công
+- 1: Lỗi input datatype
+
+
+
 
 # TABLE INTERESTTYPES : bảng LOAITK
 
@@ -9,44 +50,44 @@ dbo.addInterestType : thêm loại tiết kiệm \
 - `MinimumTimeToWithdrawal` INT (Optional, default = 0) : thời gian rút tối thiểu 
 
 @Returns:
-- 0: thêm thành công
-- 1: Lỗi gì đó
+- 0: thêm thành công, nếu loại tiết kiệm đã có trong database nhưng bị blocked thì tự động unblocked chứ không thêm mới
+- 1: lỗi datatype đầu vào
+
 
 <hr>
 
-dbo.updateInterestType : cập nhật loại tiết kiệm \
+dbo.updateInterestType : cập nhật số ngày rút tối thiểu loại tiết kiệm \
 @Params:
-- `InterestTypeID` CHAR(10) : Mã loại tiết kiệm
-- `NewInterestRate` DECIMAL(3,2) : Lãi suất mới (Optional)
-- `NewMinimumTimeToWithdrawal` INT : Thời gian rút tối thiểu mới (Optional)
+- `InterestTypeID` INT : Mã loại tiết kiệm
+- `NewMinimumTimeToWithdrawal` INT (mặc định = NULL) : Thời gian rút tối thiểu mới (Optional)
 
 @Returns:
 - 0: cập nhật thành công
 - 1: không có sự cập nhật xảy ra (do tham số truyền vào là null hoặc Mã LTK không tồn tại trong CSDL)
-- 2: cập nhật không thành công vì đã có loại tiết kiệm tương ứng trong CSDL
-- 3: Lỗi gì đó
+- 2: Lỗi input datatype
 
 <hr>
 
 dbo.blockInterestType : "khóa" loại tiết kiệm \
 @Params:
-- `InterestTypeID` CHAR(10) : Mã loại tiết kiệm
+- `InterestTypeID` INT : Mã loại tiết kiệm
 
 @Returns:
 - 0: cập nhật thành công
 - 1: Không có sự cập nhật xảy ra do Mã LTK không tồn tại trong CSDL
-- 2: Lỗi gì đó
+- 2: Lỗi input datatype
 
 <hr>
 
 dbo.unblockInterestType : "mở khóa" loại tiết kiệm \
 @Params:
-- `InterestTypeID` CHAR(10) : Mã loại tiết kiệm
+- `InterestTypeID` INT : Mã loại tiết kiệm
 
 @Returns:
-- 0: cập nhật thành công
+- 0: unblock thành công
 - 1: Không có sự cập nhật xảy ra do Mã LTK không tồn tại trong CSDL
-- 2: Lỗi gì đó
+- 2: Lỗi input datatype
+
 
 <hr>
 
@@ -56,9 +97,8 @@ dbo.getInterestType : tra cứu loại tiết kiệm theo kỳ hạn và lãi su
 - `InterestRate` DECIMAL(3,2) : Lãi suất
 
 @Returns:
-- Record set: tìm kiếm thành công
-- 1: Lỗi gì đó
-
+- Record set (InterestTypeID, InterestRate, Term, MinimumTimeToWithdrawal): tìm kiếm thành công
+- 1: Lỗi input datatype
 
 
 # TABLE PARAMS : bảng THAMSO
@@ -69,7 +109,7 @@ dbo.updateMinimumDeposit : Cập nhật quy định số tiền gửi tối thi�
 
 @Returns:
 - 0: cập nhật thành công
-- 1: cập nhật không thành công vì lỗi dữ liệu (có thể do tham số truyền vào bị null)
+- 1: cập nhật không thành công vì lỗi dữ liệu nhập vào (có thể do tham số truyền vào bị null)
 
 
 
@@ -77,27 +117,29 @@ dbo.updateMinimumDeposit : Cập nhật quy định số tiền gửi tối thi�
 
 dbo.addDeposit : thêm phiếu gửi tiền, ngày mở phiếu, mã phiếu, status được thêm vào tự động \
 @Params: 
-- `CustomerID` CHAR(10) : Mã khách hàng
-- `InterestTypeID` CHAR(10) : Mã LoaiTK
+- `CustomerID` INT : Mã khách hàng
+- `InterestTypeID` INT : Mã LoaiTK
 - `Fund` MONEY : Số tiền gửi 
 
 @Returns:
-- Record set: thêm thành công
+- Record set (DepositID, OpenedDate, Term, InterestRate): thêm thành công, record set chứa những thông tin trừu tượng của phiếu gửi vừa tạo.
 - 1: thêm không thành công vì chưa có khách hàng trong database hoặc không có loại tiết kiệm này trong database
 - 2: thêm không thành công vì số tiền gửi nhỏ hơn quy định
 - 3: thêm không thành công vì loại tiết kiệm được chon đã bị "khóa"
 - 4: thêm không thành công vì không được thêm tên người rút khi lập phiếu gửi tiền
-- 5: Lỗi gì đó
+- 5: Lỗi input datatype
 
 <hr>
 
 dbo.deleteDeposit : xóa phiếu gửi tiền \
 @Params:
-- `DepositID` CHAR(10) : Mã phiếu gửi tiền cần xóa
+- `DepositID` INT : Mã phiếu gửi tiền cần xóa
 
 @Returns: 
 - 0: xóa thành công
 - 1: xóa không thành công vì đã quá 30 phút lập phiếu và phiếu còn tiền, để xóa thì phải liên lạc SA
+- 2: không có phiếu gửi cần xóa trong CSDL
+- 3: lỗi input datatype.
 
 
 <hr>
@@ -107,28 +149,32 @@ dbo.getDepositDetailWithDate : tìm phiếu gửi với ngày mở \
 - `OpenedDate` SMALLDATETIME : ngày mở theo định dạng YYYYMMDD
 
 @Returns: 
-- Record set 
+- Record set (DepositID, CustomerName, InterestRate, Term, Fund, OpenedDate) khi thành công
+- 1: Khi xảy ra lỗi input datatype
 
 
 <hr>
 
 dbo.getDepositDetailWithID : tìm phiếu gửi với MaPGT \
 @Params:
-- `DepositID` CHAR(10) : MaGT
+- `DepositID` INT : MaGT
 
 @Returns: 
-- Record set 
+- Record set (DepositID, CustomerName, InterestRate, Term, Fund, OpenedDate) khi thành công
+- 1: lỗi input datatype 
 
 
 <hr>
 
 dbo.getDepositDetailWithDateAndID : tìm phiếu gửi với ngày mở và MaPGT \
 @Params:
-- `DepositID` CHAR(10) : MaGT
+- `DepositID` INT : MaGT
 - `OpenedDate` SMALLDATETIME : ngày mở theo định dạng YYYYMMDD
 
 @Returns: 
-- Record set 
+- Record set (DepositID, CustomerName, InterestRate, Term, Fund, OpenedDate) khi thành công
+- 1: lỗi input datatype 
+
 
 
 # TABLE PROFITREPORTS + REPORTDETAILS: Bảng báo cáo ngày và chi tiết báo cáo ngày
@@ -138,8 +184,12 @@ dbo.makeReportByDay : tạo báo cáo ngày \
 - `Date` DATE: ngày lập báo cáo theo format dmy
 
 @Returns 
-- Record set: nếu lập thành công
+- Hai Record sets: báo cáo và chi tiết ngày hôm đó nếu lập thành công
+    + Báo cáo ngày (TotalRevenue, TotalCost, TotalProfit)
+    + Báo cáo chi tiết (Costs.RecordedDate, Costs.InterestTypeID, TotalRevenueEachType, TotalCostEachType, ProfitEachType)
 - 1: nếu ngày lập báo cáo ở tương lai (> hiện tại)
+
+<hr>
 
 dbo.summaryMonthReport : tổng hợp các báo cáo ngày thành 1 báo cáo tháng \
 @Params:
@@ -147,50 +197,6 @@ dbo.summaryMonthReport : tổng hợp các báo cáo ngày thành 1 báo cáo th
 - `Year` INT : năm tổng hợp
 
 @Returns:
-- Record set : nếu tổng hợp thành công
+- Record set (MonthRevenue, MonthCost, MonthProfit): báo cáo tháng đó nếu tổng hợp thành công
 - 1 : nếu tháng, năm không hợp lệ
-
-
-
-# TABLE CUSTOMER : bảng KHACHHANG
-
-dbo.addCustomer : thêm khách hàng \
-@Params: 
-- `CustomerName` VARCHAR(40) : Tên khách hàng 
-- `PhoneNumber` VARCHAR(20)	: Số điện thoại 
-- `CitizenID` VARCHAR(20) : Căn cước công dân
-- `CustomerAddress` VARCHAR(100) : Địa chỉ
-
-@Returns:
-- Record set: thêm thành công
-- 1: thêm không thành công vì bị trùng căn cước công dân
-- 2: Lỗi gì đó (có thể do tham số truyền vào bị null)
-
-<hr>
-
-dbo.updateCustomer : cập nhật khách hàng \
-@Params: 
-- `CustomerID` INT : Mã khách hàng
-- `CustomerName` VARCHAR(40) : Tên khách hàng mới 
-- `PhoneNumber` VARCHAR(20)	: Số điện thoại mới
-- `CitizenID` VARCHAR(20) : Căn cước công dân mới
-- `CustomerAddress` VARCHAR(100) : Địa chỉ mới
-
-@Returns:
-- 0: cập nhật thành công
-- 1: Không có sự cập nhật nào xảy ra do tất cả các tham số truyền vào đều là null hoặc không tồn tại mã khách hàng cần cập nhật trong CSDL
-- 2: cập nhật không thành công vì bị trùng căn cước công dân
-- 3: Lỗi gì đó 
-
-<hr>
-
-dbo.getCustomerDetailWithCitizenID : tìm khách hàng với CCCD \
-@Params:
-- `CitizenID` INT : Căn cước công dân
-
-@Returns: 
-- Record set: tìm kiếm thành công
-- 1: Lỗi gì đó
-
-
 
