@@ -22,8 +22,9 @@ dbo.updateInterestType : cập nhật loại tiết kiệm \
 
 @Returns:
 - 0: cập nhật thành công
-- 1: cập nhật không thành công vì đã có loại tiết kiệm tương ứng trong CSDL
-- 2: Lỗi gì đó
+- 1: không có sự cập nhật xảy ra (do tham số truyền vào là null hoặc Mã LTK không tồn tại trong CSDL)
+- 2: cập nhật không thành công vì đã có loại tiết kiệm tương ứng trong CSDL
+- 3: Lỗi gì đó
 
 <hr>
 
@@ -33,6 +34,8 @@ dbo.blockInterestType : "khóa" loại tiết kiệm \
 
 @Returns:
 - 0: cập nhật thành công
+- 1: Không có sự cập nhật xảy ra do Mã LTK không tồn tại trong CSDL
+- 2: Lỗi gì đó
 
 <hr>
 
@@ -42,6 +45,19 @@ dbo.unblockInterestType : "mở khóa" loại tiết kiệm \
 
 @Returns:
 - 0: cập nhật thành công
+- 1: Không có sự cập nhật xảy ra do Mã LTK không tồn tại trong CSDL
+- 2: Lỗi gì đó
+
+<hr>
+
+dbo.getInterestType : tra cứu loại tiết kiệm theo kỳ hạn và lãi suất \
+@Params:
+- `Term` INT : Kỳ hạn
+- `InterestRate` DECIMAL(3,2) : Lãi suất
+
+@Returns:
+- Record set: tìm kiếm thành công
+- 1: Lỗi gì đó
 
 
 
@@ -53,7 +69,7 @@ dbo.updateMinimumDeposit : Cập nhật quy định số tiền gửi tối thi�
 
 @Returns:
 - 0: cập nhật thành công
-- 1: cập nhật không thành công vì lỗi dữ liệu
+- 1: cập nhật không thành công vì lỗi dữ liệu (có thể do tham số truyền vào bị null)
 
 
 
@@ -66,9 +82,12 @@ dbo.addDeposit : thêm phiếu gửi tiền, ngày mở phiếu, mã phiếu, st
 - `Fund` MONEY : Số tiền gửi 
 
 @Returns:
-- 0: thêm thành công
+- Record set: thêm thành công
 - 1: thêm không thành công vì chưa có khách hàng trong database hoặc không có loại tiết kiệm này trong database
 - 2: thêm không thành công vì số tiền gửi nhỏ hơn quy định
+- 3: thêm không thành công vì loại tiết kiệm được chon đã bị "khóa"
+- 4: thêm không thành công vì không được thêm tên người rút khi lập phiếu gửi tiền
+- 5: Lỗi gì đó
 
 <hr>
 
@@ -112,7 +131,7 @@ dbo.getDepositDetailWithDateAndID : tìm phiếu gửi với ngày mở và MaPG
 - Record set 
 
 
-# TABLE PROFITREPORTS + REPORTDETAILS: Bảng báo cáo ngày và chi tiết báo cáo ngày\
+# TABLE PROFITREPORTS + REPORTDETAILS: Bảng báo cáo ngày và chi tiết báo cáo ngày
 
 dbo.makeReportByDay : tạo báo cáo ngày \
 @Params:
