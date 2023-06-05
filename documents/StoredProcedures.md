@@ -136,9 +136,10 @@ dbo.deleteDeposit : xóa phiếu gửi tiền \
 
 @Returns: 
 - 0: xóa thành công
-- 1: xóa không thành công vì đã quá 30 phút lập phiếu và phiếu còn tiền, để xóa thì phải liên lạc SA
-- 2: không có phiếu gửi cần xóa trong CSDL
-- 3: lỗi input datatype.
+- 1: không tồn tại phiếu gửi trong CSDL
+- 2: xóa không thành công vì đã quá 30 phút lập phiếu và phiếu còn tiền, để xóa thì phải liên lạc SA
+- 3: không có phiếu gửi cần xóa trong CSDL
+- 4: lỗi input datatype.
 
 
 <hr>
