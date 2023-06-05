@@ -67,19 +67,11 @@ CREATE PROCEDURE dbo.addCustomer
 AS
 BEGIN
 	SET NOCOUNT ON
-	BEGIN TRY
-		INSERT INTO Customers (CustomerName, PhoneNumber, CitizenID, CustomerAddress)
-		VALUES (@CustomerName, @PhoneNumber, @CitizenID, @CustomerAddress)
-		SET NOCOUNT ON;
-		SELECT CustomerID FROM Customers 
-			WHERE CitizenID = @CitizenID
-	END TRY
-	BEGIN CATCH
-		IF (ERROR_NUMBER() = 50012)
-			RETURN 1
-		ELSE
-			RETURN 2
-	END CATCH 
+	INSERT INTO Customers (CustomerName, PhoneNumber, CitizenID, CustomerAddress)
+	VALUES (@CustomerName, @PhoneNumber, @CitizenID, @CustomerAddress)
+	SET NOCOUNT ON;
+	SELECT CustomerID FROM Customers 
+		WHERE CitizenID = @CitizenID
 END
 GO
 
@@ -95,40 +87,32 @@ CREATE PROCEDURE dbo.updateCustomer
 AS
 BEGIN
 	SET NOCOUNT ON
-	BEGIN TRY
-		IF (NOT EXISTS (SELECT * FROM Customers WHERE CustomerID = @CustomerID))
-			RETURN 1
-		IF (@CitizenID IS NOT NULL)
-			BEGIN
-				UPDATE Customers
-				SET CitizenID = @CitizenID
-				WHERE @CustomerID = CustomerID
-			END
-		IF (@CustomerName IS NOT NULL)
-			BEGIN
-				UPDATE Customers
-				SET CustomerName = @CustomerName
-				WHERE @CustomerID = CustomerID
-			END
-		IF (@PhoneNumber IS NOT NULL)
-			BEGIN
-				UPDATE Customers
-				SET Phonenumber = @PhoneNumber
-				WHERE @CustomerID = CustomerID
-			END
-		IF (@CustomerAddress IS NOT NULL)
-			BEGIN
-				UPDATE Customers
-				SET CustomerAddress = @CustomerAddress
-				WHERE @CustomerID = CustomerID
-			END
-	END TRY
-	BEGIN CATCH
-		IF (ERROR_NUMBER() = 50012)
-			RETURN 2
-		ELSE
-			RETURN 3
-	END CATCH 
+	IF (NOT EXISTS (SELECT * FROM Customers WHERE CustomerID = @CustomerID))
+		RETURN 1
+	IF (@CitizenID IS NOT NULL)
+		BEGIN
+			UPDATE Customers
+			SET CitizenID = @CitizenID
+			WHERE @CustomerID = CustomerID
+		END
+	IF (@CustomerName IS NOT NULL)
+		BEGIN
+			UPDATE Customers
+			SET CustomerName = @CustomerName
+			WHERE @CustomerID = CustomerID
+		END
+	IF (@PhoneNumber IS NOT NULL)
+		BEGIN
+			UPDATE Customers
+			SET Phonenumber = @PhoneNumber
+			WHERE @CustomerID = CustomerID
+		END
+	IF (@CustomerAddress IS NOT NULL)
+		BEGIN
+			UPDATE Customers
+			SET CustomerAddress = @CustomerAddress
+			WHERE @CustomerID = CustomerID
+		END
 END
 GO
 
@@ -205,14 +189,9 @@ CREATE PROCEDURE dbo.addInterestType
 AS
 BEGIN
 	SET NOCOUNT ON
-	BEGIN TRY
-		INSERT INTO InterestTypes (InterestRate, Term, MinimumTimeToWithdrawal)
-		VALUES (@InterestRate, @Term, @MinimumTimeToWithdrawal)
+	INSERT INTO InterestTypes (InterestRate, Term, MinimumTimeToWithdrawal)
+	VALUES (@InterestRate, @Term, @MinimumTimeToWithdrawal)
 		-- return 0 thanh cong
-	END TRY
-	BEGIN CATCH
-		RETURN 1 -- loi datatype
-	END CATCH
 END
 GO
 
@@ -225,18 +204,13 @@ CREATE PROCEDURE dbo.blockInterestType
 AS
 BEGIN
 	SET NOCOUNT ON
-	BEGIN TRY
-		UPDATE InterestTypes
-		SET Status = 1 -- blocked
-		WHERE InterestTypeID = @InterestTypeID
-		IF (EXISTS (SELECT * FROM InterestTypes 
-			WHERE InterestTypeID = @InterestTypeID))
-			RETURN 0 -- them thanh cong
-		ELSE RETURN 1 -- khong co LoaiTK trong CSDL
-	END TRY
-	BEGIN CATCH
-		RETURN 2 -- loi input datatype
-	END CATCH
+	UPDATE InterestTypes
+	SET Status = 1 -- blocked
+	WHERE InterestTypeID = @InterestTypeID
+	IF (EXISTS (SELECT * FROM InterestTypes 
+		WHERE InterestTypeID = @InterestTypeID))
+		RETURN 0 -- them thanh cong
+	ELSE RETURN 1 -- khong co LoaiTK trong CSDL
 END
 GO
 
@@ -249,18 +223,13 @@ CREATE PROCEDURE dbo.unblockInterestType
 AS
 BEGIN
 	SET NOCOUNT ON
-	BEGIN TRY
-		UPDATE InterestTypes
-		SET Status = NULL -- unblocked
-		WHERE InterestTypeID = @InterestTypeID
-		IF (EXISTS (SELECT * FROM InterestTypes 
-			WHERE InterestTypeID = @InterestTypeID))
-			RETURN 0 -- thanh cong
-		ELSE RETURN 1 -- khong co MaLTK trong CSDL
-	END TRY
-	BEGIN CATCH
-		RETURN 2 -- loi input datatype
-	END CATCH
+	UPDATE InterestTypes
+	SET Status = NULL -- unblocked
+	WHERE InterestTypeID = @InterestTypeID
+	IF (EXISTS (SELECT * FROM InterestTypes 
+		WHERE InterestTypeID = @InterestTypeID))
+		RETURN 0 -- thanh cong
+	ELSE RETURN 1 -- khong co MaLTK trong CSDL
 END
 GO
 
@@ -294,22 +263,17 @@ CREATE PROCEDURE dbo.updateInterestType
 AS
 BEGIN
 	SET NOCOUNT ON
-	BEGIN TRY
-		IF (@NewMinimumTimeToWithdrawal IS NOT NULL)
-			BEGIN
-				UPDATE InterestTypes
-				SET MinimumTimeToWithdrawal = @NewMinimumTimeToWithdrawal
-				WHERE InterestTypeID = @InterestTypeID
-				IF (EXISTS (SELECT * FROM InterestTypes 
-					WHERE InterestTypeID = @InterestTypeID))
-					RETURN 0 -- thanh cong
-			END
-		ELSE
-			RETURN 1 -- tham so NULL
-	END TRY
-	BEGIN CATCH
-		RETURN 2
-	END CATCH
+	IF (@NewMinimumTimeToWithdrawal IS NOT NULL)
+		BEGIN
+			UPDATE InterestTypes
+			SET MinimumTimeToWithdrawal = @NewMinimumTimeToWithdrawal
+			WHERE InterestTypeID = @InterestTypeID
+			IF (EXISTS (SELECT * FROM InterestTypes 
+				WHERE InterestTypeID = @InterestTypeID))
+				RETURN 0 -- thanh cong
+		END
+	ELSE
+		RETURN 1 -- tham so NULL
 END
 GO
 
@@ -322,7 +286,6 @@ CREATE PROCEDURE dbo.getInterestType
 			@InterestRate DECIMAL(3,2) = NULL
 AS
 BEGIN
-	BEGIN TRY
 	SET NOCOUNT ON;
 	IF (@Term IS NULL AND @InterestRate IS NULL)
 		BEGIN
@@ -351,10 +314,6 @@ BEGIN
 			WHERE Status IS NULL -- is not blocked/hidden
 				AND @Term = Term AND @InterestRate = InterestRate
 		END
-	END TRY
-	BEGIN CATCH
-		RETURN 1
-	END CATCH
 END
 GO
 
@@ -440,31 +399,21 @@ CREATE PROCEDURE dbo.addDeposit
 AS
 BEGIN
 	SET NOCOUNT ON
-	BEGIN TRY
-		-- Check if the customer or the given interest type is in the database 
-		IF (NOT EXISTS (SELECT * FROM InterestTypes WHERE @InterestTypeID = InterestTypeID) -- invalid Type
-			OR NOT EXISTS (SELECT * FROM Customers WHERE @CustomerID = CustomerID)) -- invalid customer
-			BEGIN
-				RETURN 1 -- khong co KhachHang hoac LoaiTK
-			END
-		-- insert new record
-		DECLARE @OutputRecord TABLE (ID INT)
-		INSERT INTO Deposits 
-		OUTPUT inserted.DepositID INTO @OutputRecord(ID)
-		VALUES (@CustomerID, @InterestTypeID, GETDATE(), @Fund, NULL);
-		-- return record set 
-		SELECT DepositID, OpenedDate, Term, InterestRate 
-			FROM Deposits D JOIN InterestTypes IT ON IT.InterestTypeID = D.InterestTypeID
-			WHERE EXISTS (SELECT * FROM @OutputRecord WHERE ID = DepositID)
-	END TRY
-	BEGIN CATCH
-		IF (ERROR_NUMBER() = 50002)
-			RETURN 2 -- so tien gui nho hon quy dinh
-		ELSE IF (ERROR_NUMBER() = 50003)
-			RETURN 3 -- loai tiet kiem khong hop le
-		ELSE 
-			RETURN 4
-	END CATCH 
+	-- Check if the customer or the given interest type is in the database 
+	IF (NOT EXISTS (SELECT * FROM InterestTypes WHERE @InterestTypeID = InterestTypeID) -- invalid Type
+		OR NOT EXISTS (SELECT * FROM Customers WHERE @CustomerID = CustomerID)) -- invalid customer
+		BEGIN
+			RETURN 1 -- khong co KhachHang hoac LoaiTK
+		END
+	-- insert new record
+	DECLARE @OutputRecord TABLE (ID INT)
+	INSERT INTO Deposits 
+	OUTPUT inserted.DepositID INTO @OutputRecord(ID)
+	VALUES (@CustomerID, @InterestTypeID, GETDATE(), @Fund, NULL);
+	-- return record set 
+	SELECT DepositID, OpenedDate, Term, InterestRate 
+		FROM Deposits D JOIN InterestTypes IT ON IT.InterestTypeID = D.InterestTypeID
+		WHERE EXISTS (SELECT * FROM @OutputRecord WHERE ID = DepositID)
 END
 GO
 
@@ -476,24 +425,19 @@ CREATE PROCEDURE dbo.deleteDeposit @DepositID INT
 AS
 BEGIN
 	SET NOCOUNT ON
-	BEGIN TRY
-		IF (NOT EXISTS (SELECT * FROM Deposits WHERE DepositID = @DepositID))
-			BEGIN
-				RETURN 1
-			END
-		DECLARE @OpenedDate SMALLDATETIME
-		SELECT @OpenedDate = OpenedDate FROM Deposits
-			WHERE DepositID = @DepositID
-		IF (DATEDIFF(minute, @OpenedDate, GETDATE()) > 30) 
-			RETURN 2
-
-		DELETE FROM Deposits
+	IF (NOT EXISTS (SELECT * FROM Deposits WHERE DepositID = @DepositID))
+		BEGIN
+			RETURN 1
+		END
+	DECLARE @OpenedDate SMALLDATETIME
+	SELECT @OpenedDate = OpenedDate FROM Deposits
 		WHERE DepositID = @DepositID
-		RETURN 0
-	END TRY
-	BEGIN CATCH
-		RETURN 3
-	END CATCH
+	IF (DATEDIFF(minute, @OpenedDate, GETDATE()) > 30) 
+		RETURN 2
+
+	DELETE FROM Deposits
+	WHERE DepositID = @DepositID
+	RETURN 0
 END
 GO
 
@@ -503,17 +447,11 @@ CREATE PROCEDURE dbo.getDepositDetailWithDate
 			@OpenedDate SMALLDATETIME 
 AS 
 BEGIN
-	BEGIN TRY
 	SET NOCOUNT ON;
-	
-SELECT TOP 1 WITH TIES D.DepositID, D.CustomerID, 
-		   CustomerName, 
-		   InterestRate, 
-		   Term, 
+	SELECT TOP 1 WITH TIES D.DepositID, D.CustomerID, 
+		   CustomerName, InterestRate, Term, 
 		   Balance - Fund as TotalChanges,
-		   Balance,
-		   Fund,
-		   OpenedDate
+		   Balance, Fund, OpenedDate
 	FROM Deposits D JOIN Customers C 
 		ON D.CustomerID = C.CustomerID
 		JOIN InterestTypes IT
@@ -522,11 +460,6 @@ SELECT TOP 1 WITH TIES D.DepositID, D.CustomerID,
 		ON T.DepositID = D.DepositID
 	WHERE @OpenedDate = CAST(CONVERT(VARCHAR(10), D.OpenedDate, 101) AS DATE)
 	ORDER BY ROW_NUMBER() OVER(PARTITION BY D.DepositID ORDER BY TransactionID DESC)
-
-	END TRY
-	BEGIN CATCH
-		RETURN 1
-	END CATCH
 END
 GO
 
@@ -536,7 +469,6 @@ CREATE PROCEDURE dbo.getDepositDetailWithID
 			@DepositID INT 
 AS 
 BEGIN
-	BEGIN TRY
 	SET NOCOUNT ON;
 	SELECT TOP 1 WITH TIES D.DepositID, D.CustomerID, 
 		   CustomerName, 
@@ -554,11 +486,6 @@ BEGIN
 		ON T.DepositID = D.DepositID
 	WHERE @DepositID = D.DepositID
 	ORDER BY ROW_NUMBER() OVER(PARTITION BY D.DepositID ORDER BY TransactionID DESC)
-
-	END TRY
-	BEGIN CATCH
-		RETURN 1
-	END CATCH
 END
 GO
 
@@ -569,20 +496,15 @@ CREATE PROCEDURE dbo.getDepositDetailWithDateAndID
 			@OpenedDate SMALLDATETIME = NULL
 AS 
 BEGIN
-	BEGIN TRY
-		SET NOCOUNT ON;
-		IF (@DepositID IS NOT NULL)
-			BEGIN
-				EXEC dbo.getDepositDetailWithID @DepositID
-			END
-		ELSE 
-			BEGIN
-				EXEC dbo.getDepositDetailWithDate @OpenedDate
-			END
-	END TRY
-	BEGIN CATCH
-		RETURN 1
-	END CATCH
+	SET NOCOUNT ON;
+	IF (@DepositID IS NOT NULL)
+		BEGIN
+			EXEC dbo.getDepositDetailWithID @DepositID
+		END
+	ELSE 
+		BEGIN
+			EXEC dbo.getDepositDetailWithDate @OpenedDate
+		END
 END
 GO
 
@@ -596,40 +518,35 @@ CREATE PROCEDURE dbo.getDepositDetails
 			@OpenedDate SMALLDATETIME = NULL
 AS 
 BEGIN
-	BEGIN TRY
-		SET NOCOUNT ON;
-		IF (@DepositID IS NOT NULL)
-			BEGIN
-				EXEC dbo.getDepositDetailWithID @DepositID
-			END
-		ELSE IF (@CitizenID IS NOT NULL AND @OpenedDate IS NULL)
-			BEGIN
-				EXEC dbo.getDepositDetailWithCitizenID @CitizenID
-			END
-		ELSE IF (@CitizenID IS NOT NULL AND @OpenedDate IS NOT NULL)
-			BEGIN
-				SELECT TOP 1 WITH TIES D.DepositID, D.CustomerID, 
-						   CustomerName, InterestRate, Term, 
-						   Balance - Fund as TotalChanges,
-						   Balance, Fund, OpenedDate
-					FROM Deposits D JOIN Customers C 
-						ON D.CustomerID = C.CustomerID
-						JOIN InterestTypes IT
-						ON D.InterestTypeID = IT.InterestTypeID
-						JOIN Transactions T
-						ON T.DepositID = D.DepositID
-					WHERE @CitizenID = C.CitizenID 
-						AND @OpenedDate = CAST(CONVERT(VARCHAR(10), D.OpenedDate, 101) AS DATE)
-					ORDER BY ROW_NUMBER() OVER(PARTITION BY D.DepositID ORDER BY TransactionID DESC)
-			END
-		ELSE 
-			BEGIN
-				EXEC dbo.getDepositDetailWithDate @OpenedDate
-			END
-	END TRY
-	BEGIN CATCH
-		RETURN 1
-	END CATCH
+	SET NOCOUNT ON;
+	IF (@DepositID IS NOT NULL)
+		BEGIN
+			EXEC dbo.getDepositDetailWithID @DepositID
+		END
+	ELSE IF (@CitizenID IS NOT NULL AND @OpenedDate IS NULL)
+		BEGIN
+			EXEC dbo.getDepositDetailWithCitizenID @CitizenID
+		END
+	ELSE IF (@CitizenID IS NOT NULL AND @OpenedDate IS NOT NULL)
+		BEGIN
+			SELECT TOP 1 WITH TIES D.DepositID, D.CustomerID, 
+						CustomerName, InterestRate, Term, 
+						Balance - Fund as TotalChanges,
+						Balance, Fund, OpenedDate
+				FROM Deposits D JOIN Customers C 
+					ON D.CustomerID = C.CustomerID
+					JOIN InterestTypes IT
+					ON D.InterestTypeID = IT.InterestTypeID
+					JOIN Transactions T
+					ON T.DepositID = D.DepositID
+				WHERE @CitizenID = C.CitizenID 
+					AND @OpenedDate = CAST(CONVERT(VARCHAR(10), D.OpenedDate, 101) AS DATE)
+				ORDER BY ROW_NUMBER() OVER(PARTITION BY D.DepositID ORDER BY TransactionID DESC)
+		END
+	ELSE 
+		BEGIN
+			EXEC dbo.getDepositDetailWithDate @OpenedDate
+		END
 END
 GO
 
@@ -639,24 +556,19 @@ CREATE PROCEDURE dbo.getDepositDetailWithCitizenID
 			@CitizenID VARCHAR(20)
 AS 
 BEGIN
-	BEGIN TRY
-		SET NOCOUNT ON;
-		SELECT TOP 1 WITH TIES D.DepositID, D.CustomerID, 
-			   CustomerName, InterestRate, Term, 
-			   Balance - Fund as TotalChanges,
-			   Balance, Fund, OpenedDate
-		FROM Deposits D JOIN Customers C 
-			ON D.CustomerID = C.CustomerID
-			JOIN InterestTypes IT
-			ON D.InterestTypeID = IT.InterestTypeID
-			JOIN Transactions T
-			ON T.DepositID = D.DepositID
-		WHERE @CitizenID = C.CitizenID
-		ORDER BY ROW_NUMBER() OVER(PARTITION BY D.DepositID ORDER BY TransactionID DESC)
-	END TRY
-	BEGIN CATCH
-		RETURN 1
-	END CATCH
+	SET NOCOUNT ON;
+	SELECT TOP 1 WITH TIES D.DepositID, D.CustomerID, 
+			CustomerName, InterestRate, Term, 
+			Balance - Fund as TotalChanges,
+			Balance, Fund, OpenedDate
+	FROM Deposits D JOIN Customers C 
+		ON D.CustomerID = C.CustomerID
+		JOIN InterestTypes IT
+		ON D.InterestTypeID = IT.InterestTypeID
+		JOIN Transactions T
+		ON T.DepositID = D.DepositID
+	WHERE @CitizenID = C.CitizenID
+	ORDER BY ROW_NUMBER() OVER(PARTITION BY D.DepositID ORDER BY TransactionID DESC)
 END
 GO
 
@@ -687,9 +599,6 @@ BEGIN
 			--------
 			-- Tinh so ngay gui
 			DECLARE @NumOfDaysDeposited INT
-					--@WithdrawalDate SMALLDATETIME,
-					--@OpenedDate SMALLDATETIME
-			--SET @WithdrawalDate = GETDATE()
 			SELECT @NumOfDaysDeposited = DATEDIFF(minute, OpenedDate, GETDATE()) - 1 FROM deleted -- minute for testing
 			-- Kiem tra dieu kien so ngay gui
 			DECLARE @MinimumTimeToWithdrawal INT
@@ -729,21 +638,11 @@ BEGIN
 													WHERE Term = 0 ORDER BY InterestRate ASC
 							-- Cap nhat so du moi
 							SET @NewBalance = @Balance * (1 + @InterestRate / 100 * @RemaningNumOfDays / 360)
-							-- Tinh change
-							--DECLARE @Change MONEY
-							--SET @Change = @NewBalance - @Balance
-							-- Update Transaction
-							--DECLARE @TransactionDate SMALLDATETIME
-							--SET @TransactionDate = CONCAT(DATEPART(day, GETDATE()), '-', DATEPART(month, GETDATE()), '-', DATEPART(year, GETDATE()), ' 00:00:00')
 							INSERT INTO Transactions
 							VALUES(@DepositID, @NewBalance - @Balance, @NewBalance, GETDATE())
-							--UPDATE Transactions
-							--SET Transactions.Changes = @Change, Balance = @NewBalance 
-							--WHERE TransactionID = @TransactionID								
 						END
 					END
 			-- Insert to Transaction with Balance is 0
-			--SET @NewBalance = -1 * @NewBalance
 			INSERT INTO Transactions(DepositID, Changes, Balance, TransactionDate)
 				VALUES(@DepositID, -@NewBalance, 0, GETDATE())
 			RETURN
@@ -773,7 +672,6 @@ BEGIN
 		-- Xoa Transaction truoc do neu la co ky han va rut truoc ky han
 			-- Tinh so ngay gui
 			DECLARE @NoDaysDeposited INT
-					--@OpenedDate SMALLDATETIME
 			SELECT @NoDaysDeposited = DATEDIFF(minute, OpenedDate, @WithdrawalDate) - 1  -- minute de test
 				FROM Deposits
 				WHERE DepositID = @DepositID
@@ -812,31 +710,21 @@ CREATE PROCEDURE dbo.addWithdrawal
 AS
 BEGIN
 	SET NOCOUNT ON
-	BEGIN TRY 
-		IF (NOT EXISTS (SELECT * FROM Deposits
-						WHERE DepositID = @DepositID))
-			RETURN 1 -- khong co phieu rut trong CSDL
-		IF (@Withdrawer IS NULL)
-			RETURN 
-		UPDATE Deposits
-		SET Withdrawer = @Withdrawer
-		WHERE DepositID = @DepositID
-		SELECT TOP 1 -Changes - Fund AS BankInterest,
-				Fund,
-				-Changes AS Withdrawn, 
-				TransactionDate
-			FROM Transactions T JOIN Deposits D ON T.DepositID = D.DepositID
-			WHERE T.DepositID = @DepositID
-			ORDER BY TransactionID DESC
-	END TRY
-	BEGIN CATCH
-		IF (ERROR_NUMBER() = 50016)
-			RETURN 2
-		ELSE IF (ERROR_NUMBER() = 50017)
-			RETURN 3
-		ELSE 
-			RETURN 4 
-	END CATCH
+	IF (NOT EXISTS (SELECT * FROM Deposits
+					WHERE DepositID = @DepositID))
+		RETURN 1 -- khong co phieu rut trong CSDL
+	IF (@Withdrawer IS NULL)
+		RETURN 
+	UPDATE Deposits
+	SET Withdrawer = @Withdrawer
+	WHERE DepositID = @DepositID
+	SELECT TOP 1 -Changes - Fund AS BankInterest,
+			Fund,
+			-Changes AS Withdrawn, 
+			TransactionDate
+		FROM Transactions T JOIN Deposits D ON T.DepositID = D.DepositID
+		WHERE T.DepositID = @DepositID
+		ORDER BY TransactionID DESC
 END
 GO
 
@@ -849,27 +737,20 @@ CREATE PROCEDURE dbo.deleteWithdrawal
 AS
 BEGIN
 	SET NOCOUNT ON
-	BEGIN TRY
-		IF (NOT EXISTS (SELECT * FROM Transactions WHERE DepositID = @DepositID))
-			RETURN 1 --
-	
-		-- cannot delete records that were created after 30 minutes
-		DECLARE @WithdrawalDate SMALLDATETIME
-		SELECT TOP 1 @WithdrawalDate = TransactionDate 
-			FROM Transactions 
-			WHERE DepositID = @DepositID 
-			ORDER BY TransactionID DESC
-		IF (DATEDIFF(minute, @WithdrawalDate, GETDATE()) > 30) 
-			RETURN 2 -- cannot delete after 30 minutes
-		UPDATE Deposits
-		SET Withdrawer = NULL
-			WHERE DepositID = @DepositID
-	END TRY
-	BEGIN CATCH
-		IF (ERROR_NUMBER() = 50019)
-			RETURN 3
-		ELSE RETURN 4 
-	END CATCH
+	IF (NOT EXISTS (SELECT * FROM Transactions WHERE DepositID = @DepositID))
+		RETURN 1 --
+
+	-- cannot delete records that were created after 30 minutes
+	DECLARE @WithdrawalDate SMALLDATETIME
+	SELECT TOP 1 @WithdrawalDate = TransactionDate 
+		FROM Transactions 
+		WHERE DepositID = @DepositID 
+		ORDER BY TransactionID DESC
+	IF (DATEDIFF(minute, @WithdrawalDate, GETDATE()) > 30) 
+		RETURN 2 -- cannot delete after 30 minutes
+	UPDATE Deposits
+	SET Withdrawer = NULL
+		WHERE DepositID = @DepositID
 END
 GO
 
@@ -946,18 +827,13 @@ BEGIN
 	SET NOCOUNT ON
 	IF (@Changes IS NOT NULL)
 		BEGIN
-			BEGIN TRY 
-				DECLARE @NewBalance MONEY
-				SELECT TOP 1 @NewBalance=(Balance + @Changes)
-					FROM Transactions
-					WHERE @DepositID = DepositID
-					ORDER BY TransactionDate DESC
-				INSERT INTO Transactions(DepositID, Changes, Balance, TransactionDate)
-					VALUES(@DepositID, @Changes, @NewBalance, GETDATE())
-			END TRY
-			BEGIN CATCH
-				RETURN 1;
-			END CATCH
+			DECLARE @NewBalance MONEY
+			SELECT TOP 1 @NewBalance=(Balance + @Changes)
+				FROM Transactions
+				WHERE @DepositID = DepositID
+				ORDER BY TransactionDate DESC
+			INSERT INTO Transactions(DepositID, Changes, Balance, TransactionDate)
+				VALUES(@DepositID, @Changes, @NewBalance, GETDATE())
 		END
 	ELSE 
 		BEGIN
@@ -965,7 +841,6 @@ BEGIN
 		END
 END
 GO
-
 
 
 
@@ -1022,13 +897,8 @@ CREATE PROCEDURE dbo.updateMinimumDeposit
 					@NewMinimumDeposit TEXT
 AS
 BEGIN
-	BEGIN TRY
-		UPDATE Params 
-		SET MinimumDeposit = CAST(@NewMinimumDeposit AS VARCHAR)
-	END TRY
-	BEGIN CATCH
-		RETURN 1 -- loi du lieu nhap vao
-	END CATCH
+	UPDATE Params 
+	SET MinimumDeposit = CAST(@NewMinimumDeposit AS VARCHAR)
 END
 GO
 

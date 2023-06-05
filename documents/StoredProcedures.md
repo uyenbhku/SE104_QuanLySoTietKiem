@@ -10,7 +10,6 @@ dbo.addCustomer : thêm khách hàng mới \
 @Returns:
 - Record set (CustomerID): chứa mã khách hàng được thêm thành công
 - 1: thêm không thành công vì bị trùng căn cước công dân
-- 2: Lỗi input datatype (sdt va CCCD phai la so)
 
 <hr>
 
@@ -26,7 +25,6 @@ dbo.updateCustomer : thay đổi thông tin khách hàng \
 - 0: cập nhật thành công
 - 1: Không có sự cập nhật nào xảy ra do tất cả các tham số truyền vào đều là null hoặc không tồn tại mã khách hàng cần cập nhật trong CSDL
 - 2: cập nhật không thành công vì bị trùng căn cước công dân
-- 3: Lỗi input datatype 
 
 <hr>
 
@@ -50,7 +48,6 @@ dbo.addInterestType : thêm loại tiết kiệm \
 
 @Returns:
 - 0: thêm thành công, nếu loại tiết kiệm đã có trong database nhưng bị blocked thì tự động unblocked chứ không thêm mới
-- 1: lỗi datatype đầu vào
 
 
 <hr>
@@ -63,7 +60,6 @@ dbo.updateInterestType : cập nhật số ngày rút tối thiểu loại tiế
 @Returns:
 - 0: cập nhật thành công
 - 1: không có sự cập nhật xảy ra (do tham số truyền vào là null hoặc Mã LTK không tồn tại trong CSDL)
-- 2: Lỗi input datatype
 
 <hr>
 
@@ -74,7 +70,7 @@ dbo.blockInterestType : "khóa" loại tiết kiệm \
 @Returns:
 - 0: cập nhật thành công
 - 1: Không có sự cập nhật xảy ra do Mã LTK không tồn tại trong CSDL
-- 2: Lỗi input datatype
+
 
 <hr>
 
@@ -85,7 +81,6 @@ dbo.unblockInterestType : "mở khóa" loại tiết kiệm \
 @Returns:
 - 0: unblock thành công
 - 1: Không có sự cập nhật xảy ra do Mã LTK không tồn tại trong CSDL
-- 2: Lỗi input datatype
 
 
 <hr>
@@ -97,7 +92,7 @@ dbo.getInterestType : tra cứu loại tiết kiệm theo kỳ hạn và lãi su
 
 @Returns:
 - Record set (InterestTypeID, InterestRate, Term, MinimumTimeToWithdrawal): tìm kiếm thành công
-- 1: Lỗi input datatype
+
 
 
 # TABLE PARAMS : bảng THAMSO
@@ -124,9 +119,7 @@ dbo.addDeposit : thêm phiếu gửi tiền, ngày mở phiếu, mã phiếu, st
 @Returns:
 - Record set (DepositID, OpenedDate, Term, InterestRate): thêm thành công, record set chứa những thông tin trừu tượng của phiếu gửi vừa tạo.
 - 1: thêm không thành công vì chưa có khách hàng trong database hoặc không có loại tiết kiệm này trong database
-- 2: thêm không thành công vì số tiền gửi nhỏ hơn quy định
-- 3: thêm không thành công vì loại tiết kiệm được chon đã bị "khóa"
-- 4: lỗi input datatype
+
 
 <hr>
 
@@ -138,7 +131,6 @@ dbo.deleteDeposit : xóa phiếu gửi tiền \
 - 0: xóa thành công
 - 1: không tồn tại phiếu gửi trong CSDL
 - 2: xóa không thành công vì đã quá 30 phút lập phiếu và phiếu còn tiền, để xóa thì phải liên lạc SA
-- 3: lỗi input datatype.
 
 
 <hr>
@@ -149,7 +141,7 @@ dbo.getDepositDetailWithDate : tìm phiếu gửi với ngày mở \
 
 @Returns: 
 - Record set (DepositID, CustomerID, CustomerName, InterestRate, Term, TotalChanges, Balance, Fund, OpenedDate) khi thành công
-- 1: Khi xảy ra lỗi input datatype
+
 
 
 <hr>
@@ -160,7 +152,7 @@ dbo.getDepositDetailWithID : tìm phiếu gửi với MaPGT \
 
 @Returns: 
 - Record set (DepositID, CustomerID, CustomerName, InterestRate, Term, TotalChanges, Balance, Fund, OpenedDate) khi thành công
-- 1: lỗi input datatype 
+
 
 
 <hr>
@@ -172,7 +164,6 @@ dbo.getDepositDetailWithDateAndID : tìm phiếu gửi với ngày mở và MaPG
 
 @Returns: 
 - Record set (DepositID, CustomerID, CustomerName, InterestRate, Term, TotalChanges, Balance, Fund, OpenedDate) khi thành công
-- 1: lỗi input datatype 
 
 
 <hr>
@@ -182,7 +173,6 @@ dbo.getDepositDetailWithCitizenID : tìm phiếu gửi với CCCD \
 
 @Returns: 
 - Record set (DepositID, CustomerID, CustomerName, InterestRate, Term, TotalChanges, Balance, Fund, OpenedDate) khi thành công
-- 1: lỗi input datatype
 
 
 <hr>
@@ -194,7 +184,7 @@ dbo.getDepositDetails: tra cứu phiếu gửi \
 - `OpenedDate` SMALLDATETIME : ngày mở theo định dạng YYYYMMDD (mặc định = NULL) \
 @Returns: 
 - Record set (DepositID, CustomerID, CustomerName, InterestRate, Term, TotalChanges, Balance, Fund, OpenedDate) khi thành công, nếu DepositID khác NULL, chỉ trả về duy nhất 1 row, những trường hợp còn lại sẽ là kết hợp 
-- 1: lỗi input datatype
+
 
 ## Các tính năng liên quan đến rút
 
@@ -205,10 +195,7 @@ dbo.addWithdrawal: lập phiếu rút tiền \
 
 @Returns:
 - Record set (BankInterest, Fund, Withdrawn, TransactionDate): chi tiết phiếu rút tiền
-- 1: không có phiếu gửi trong CSDL
-- 2: không cho đổi tên người rút
-- 3: chưa đến ngày được rút
-- 4: lỗi khác
+- 1: không có phiếu gửi trong CSDL]
 
 
 <hr>
@@ -221,8 +208,6 @@ dbo.deleteWithdrawal: hủy phiếu rút tiền \
 - 0: xóa thành công (nếu phiếu đã rút thì vẫn trả về 0)
 - 1: không có phiếu gửi trong CSDL
 - 2: đã hơn 30p thêm vào, không được xóa 
-- 3: vẫn còn tiền trong phiếu, không được xóa
-- 4: lỗi khác
 
 
 # TABLE PROFITREPORTS + REPORTDETAILS: Bảng báo cáo ngày và chi tiết báo cáo ngày
