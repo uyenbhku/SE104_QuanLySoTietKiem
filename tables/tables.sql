@@ -486,14 +486,13 @@ BEGIN
 			WHERE DepositID = @DepositID
 		IF (DATEDIFF(minute, @OpenedDate, GETDATE()) > 30) 
 			RETURN 2
-		IF (NOT EXISTS (SELECT * FROM Deposits WHERE DepositID = @DepositID))
-			RETURN 3
+
 		DELETE FROM Deposits
 		WHERE DepositID = @DepositID
 		RETURN 0
 	END TRY
 	BEGIN CATCH
-		RETURN 4
+		RETURN 3
 	END CATCH
 END
 GO
