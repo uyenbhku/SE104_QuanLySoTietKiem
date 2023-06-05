@@ -477,19 +477,23 @@ AS
 BEGIN
 	SET NOCOUNT ON
 	BEGIN TRY
+		IF (NOT EXISTS (SELECT * FROM Deposits WHERE DepositID = @DepositID))
+			BEGIN
+				RETURN 1
+			END
 		DECLARE @OpenedDate SMALLDATETIME
 		SELECT @OpenedDate = OpenedDate FROM Deposits
 			WHERE DepositID = @DepositID
 		IF (DATEDIFF(minute, @OpenedDate, GETDATE()) > 30) 
-			RETURN 1
-		IF (NOT EXISTS (SELECT * FROM Deposits WHERE DepositID = @DepositID))
 			RETURN 2
+		IF (NOT EXISTS (SELECT * FROM Deposits WHERE DepositID = @DepositID))
+			RETURN 3
 		DELETE FROM Deposits
 		WHERE DepositID = @DepositID
 		RETURN 0
 	END TRY
 	BEGIN CATCH
-		RETURN 3
+		RETURN 4
 	END CATCH
 END
 GO
