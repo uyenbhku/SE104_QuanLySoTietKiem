@@ -108,5 +108,10 @@ EXECUTE sys.sp_addmessage
 		@severity = 16,
 		@msgtext = N'Can not delete this transaction.';
 
+EXECUTE sys.sp_addmessage
+		@msgnum = 50020,
+		@severity = 16,
+		@msgtext = N'Phone number and citizen ID must be numeric.';
+
 -- Set date format to day/month/year
 SET DATEFORMAT dmy
