@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./css/icon.css">
+    <link rel="stylesheet" href="./css/workinglayout.css">
+    <link rel="stylesheet" href="./css/form.css">
+    <!--<link href='https://fonts.googleapis.com/css?family=Calibri' rel='stylesheet'>-->
+    <script src="https://code.jquery.com/jquery-3.6.3.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
+    <title>Tạo phiếu gửi tiền</title>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar col-2 p-0">
+            <div class="sidebarHeader">
+                <a href="#" class="sidebarHide">
+                    <i class="icon iconSidebar"></i>
+                    <span>Sổ tiết kiệm
+                </a>
+            </div>
+            <nav>
+                <ul>
+                    <li>
+                        <a href="#" class="active">
+                            <i class="icon iconDashboard"></i>
+                            <span>Gửi tiền</span>
+                            <i class="iconActive"></i>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="inactive">
+                            <i class="icon iconSavings"></i>
+                            <span>Rút tiền</span>
+                            <i class="iconinActive"></i>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="./search.html" class="inactive">
+                            <i class="icon iconSaved"></i>
+                            <span>Tra cứu</span>
+                            <i class="iconinActive"></i>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="./report.html" class="inactive">
+                            <i class="icon iconProfile"></i>
+                            <span>Báo cáo</span>
+                            <i class="iconinActive"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <div class="logoutButton">
+                <a href="#" class="">
+                    <i class="icon iconLogout"></i>
+                    <span>Đăng xuất</span>
+                </a>
+            </div>
+        </div>
+        <div class="main">
+            <div class="mainHeader">
+                <button type="button" class="sidebarButton">
+                    <i class="icon iconSidebar"></i>
+                </button>
+                <p>Tạo phiếu gửi tiền mới</p>
+            </div>
+            <div>
+                <form action="#" id="form" method="POST">
+                    <div class = "citizenIDBox box">
+                        <label for="citizenID">CMND/CCCD:</label>
+                        <input type="text" id="citizenID" name="citizenID" placeholder="Nếu tồn tại CMND/CCCD thì tự động cập nhật thông tin" maxlength="12">
+                    </div>
+                    <div class = "fullnameBox box">
+                        <label for="fullname">Họ và tên:</label>
+                        <input type="text" id="fullname" name="fullname" placeholder="Nếu tồn tại thì read-only, không thì read-write" readonly maxlength="80">
+                    </div>
+                    <div class = "addressBox box">
+                        <label for="address">Địa chỉ:</label>
+                        <input type="text" id="address" name="address" placeholder="Nếu tồn tại thì read-only, không thì read-write" readonly maxlength="80">
+                    </div>
+                    <div class = "phoneBox box">
+                        <label for="phone">Điện thoại:</label>
+                        <input type="text" id="phone" name="phone" placeholder="Nếu tồn tại thì read-only, không thì read-write" readonly maxlength="12">
+                    </div>
+                    <div class = "typeBox box">
+                        <label for = "type">Loại tiết kiệm: </label>
+                        <input id="type" name="type" placeholder="Cập nhật từ DB các loại tiết kiệm" list="choice">
+                        <datalist id="choice">
+                            <option value="None">
+                            <option value="3 months">
+                            <option value="6 months">
+                            <option value="1 year">
+                            <option value="3 years">
+                        </datalist>
+                        <div id="type_warning"></div>
+                    </div>
+                    <div class = "depositBox box">
+                        <label for="deposit">Số tiền gửi:</label>
+                        <input type="number" id="deposit" name="deposit" placeholder="Cập nhật từ DB số tiền gửi tối thiểu" step="500" min="100000">
+                    </div>
+                    <div id="btn_side">
+                        <input id="confirmBtn" type="submit" value="Tạo"></input>
+                        <a href="#"><button id="gobackBtn" type="button">Quay lại</button></button></a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="./js/createPB.js"></script>
+    <script src="./js/formhandle.js"></script>
+    <script src="./js/sidebar.js"></script>
+</body>
+</html>

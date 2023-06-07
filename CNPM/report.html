@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./css/icon.css">
+    <link rel="stylesheet" href="./css/workinglayout.css">
+    <link rel="stylesheet" href="./css/form.css">
+    <link rel="stylesheet" href="./css/table.css">
+    <link rel="stylesheet" href="./css/report.css">
+    <!--<link href='https://fonts.googleapis.com/css?family=Calibri' rel='stylesheet'>-->
+    <script src="https://code.jquery.com/jquery-3.6.3.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
+    <title>Tạo phiếu gửi tiền</title>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar col-2 p-0">
+            <div class="sidebarHeader">
+                <a href="#" class="sidebarHide">
+                    <i class="icon iconSidebar"></i>
+                    <span>Sổ tiết kiệm
+                </a>
+            </div>
+            <nav>
+                <ul>
+                    <li>
+                        <a href="./createPB.html" class="inactive">
+                            <i class="icon iconDashboard"></i>
+                            <span>Gửi tiền</span>
+                            <i class="iconinActive"></i>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="inactive">
+                            <i class="icon iconSavings"></i>
+                            <span>Rút tiền</span>
+                            <i class="iconinActive"></i>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="./search.html" class="inactive">
+                            <i class="icon iconSaved"></i>
+                            <span>Tra cứu</span>
+                            <i class="iconinActive"></i>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="active">
+                            <i class="icon iconProfile"></i>
+                            <span>Báo cáo</span>
+                            <i class="iconActive"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <div class="logoutButton">
+                <a href="#" class="">
+                    <i class="icon iconLogout"></i>
+                    <span>Đăng xuất</span>
+                </a>
+            </div>
+        </div>
+        <div class="main">
+            <div class="mainHeader">
+                <button type="button" class="sidebarButton">
+                    <i class="icon iconSidebar"></i>
+                </button>
+                <p>Báo cáo doanh số hoạt động ngày</p>
+            </div>
+            <div>
+                <form action="#" id="form" method="POST">
+                    <div class = "dateBox box">
+                        <label for="dateID">Ngày:</label>
+                        <input type="date" id="dateID" name="dateID">
+                    </div>
+                    <div id="btn_side">
+                        <input id="confirmBtn" type="submit" value="Tạo"></input>
+                        <a href="#"><button id="gobackBtn" type="button">Trở lại</button></button></a>
+                    </div>
+                </form>
+            </div>
+            <div class="hide_table">
+                <table id="table">
+                    <tr>
+                      <th>STT</th>
+                      <th>Loại tiết kiệm</th>
+                      <th>Thu</th>
+                      <th>Chi</th>
+                      <th>Lợi nhuận</th>
+                    </tr>
+                  </table>
+            </div>
+            <form action="#" id="report" method="POST">
+                <div class = "getBox box">
+                    <label for="get">Tổng thu:</label>
+                    <input type="text" id="get" name="get" readonly>
+                </div>
+                <div class = "payBox box">
+                    <label for="pay">Tổng chi:</label>
+                    <input type="text" id="pay" name="pay" readonly>
+                </div>
+                <div class = "benefitBox box">
+                    <label for="benefit">Tổng lợi nhuận:</label>
+                    <input type="text" id="benefit" name="benefit" readonly>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script src="./js/formhandle.js"></script>
+    <script src="./js/sidebar.js"></script>
+</body>
+</html>
