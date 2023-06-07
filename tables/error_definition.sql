@@ -30,7 +30,8 @@ EXECUTE sys.sp_addmessage
 EXECUTE sys.sp_addmessage
 		@msgnum = 50005,
 		@severity = 16,
-		@msgtext = N'Cannot delete after 30 minutes. Contact SA to delete.';
+		@msgtext = N'Cannot delete after 30 
+		s. Contact SA to delete.';
 
 
 EXECUTE sys.sp_addmessage
@@ -48,7 +49,7 @@ EXECUTE sys.sp_addmessage
 EXECUTE sys.sp_addmessage
 		@msgnum = 50008,
 		@severity = 16,
-		@msgtext = N'Invalid InterestTypeID. The system might be hacked.';
+		@msgtext = N'Invalid InterestTypeID.';
 
 
 EXECUTE sys.sp_addmessage
@@ -112,6 +113,18 @@ EXECUTE sys.sp_addmessage
 		@msgnum = 50020,
 		@severity = 16,
 		@msgtext = N'Phone number and citizen ID must be numeric.';
+
+EXECUTE sys.sp_addmessage
+		@msgnum = 50021,
+		@severity = 16,
+		@msgtext = N'Exists similar type in database.';
+
+
+		
+EXECUTE sys.sp_addmessage
+		@msgnum = 50022,
+		@severity = 16,
+		@msgtext = N'Have no data in the given date. Cannot make report.';
 
 -- Set date format to day/month/year
 SET DATEFORMAT dmy

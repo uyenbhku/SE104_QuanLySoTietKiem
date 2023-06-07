@@ -9,7 +9,7 @@ dbo.addCustomer : thêm khách hàng mới \
 
 @Returns:
 - Record set (CustomerID): chứa mã khách hàng được thêm thành công
-- 1: thêm không thành công vì bị trùng căn cước công dân
+
 
 <hr>
 
@@ -24,7 +24,7 @@ dbo.updateCustomer : thay đổi thông tin khách hàng \
 @Returns
 - 0: cập nhật thành công
 - 1: Không có sự cập nhật nào xảy ra do tất cả các tham số truyền vào đều là null hoặc không tồn tại mã khách hàng cần cập nhật trong CSDL
-- 2: cập nhật không thành công vì bị trùng căn cước công dân
+
 
 <hr>
 
@@ -59,7 +59,6 @@ dbo.updateInterestType : cập nhật số ngày rút tối thiểu loại tiế
 
 @Returns:
 - 0: cập nhật thành công
-- 1: không có sự cập nhật xảy ra (do tham số truyền vào là null hoặc Mã LTK không tồn tại trong CSDL)
 
 <hr>
 
@@ -69,7 +68,6 @@ dbo.blockInterestType : "khóa" loại tiết kiệm \
 
 @Returns:
 - 0: cập nhật thành công
-- 1: Không có sự cập nhật xảy ra do Mã LTK không tồn tại trong CSDL
 
 
 <hr>
@@ -80,7 +78,6 @@ dbo.unblockInterestType : "mở khóa" loại tiết kiệm \
 
 @Returns:
 - 0: unblock thành công
-- 1: Không có sự cập nhật xảy ra do Mã LTK không tồn tại trong CSDL
 
 
 <hr>
@@ -91,7 +88,7 @@ dbo.getInterestType : tra cứu loại tiết kiệm theo kỳ hạn và lãi su
 - `InterestRate` DECIMAL(3,2) : Lãi suất
 
 @Returns:
-- Record set (InterestTypeID, InterestRate, Term, MinimumTimeToWithdrawal): tìm kiếm thành công
+- Record set (InterestTypeID, InterestTypeName, InterestRate, Term, MinimumTimeToWithdrawal): tìm kiếm thành công
 
 
 
@@ -103,7 +100,6 @@ dbo.updateMinimumDeposit : Cập nhật quy định số tiền gửi tối thi�
 
 @Returns:
 - 0: cập nhật thành công
-- 1: cập nhật không thành công vì lỗi dữ liệu nhập vào (có thể do tham số truyền vào bị null)
 
 
 
@@ -130,7 +126,6 @@ dbo.deleteDeposit : xóa phiếu gửi tiền \
 @Returns: 
 - 0: xóa thành công
 - 1: không tồn tại phiếu gửi trong CSDL
-- 2: xóa không thành công vì đã quá 30 phút lập phiếu và phiếu còn tiền, để xóa thì phải liên lạc SA
 
 
 <hr>
@@ -140,7 +135,7 @@ dbo.getDepositDetailWithDate : tìm phiếu gửi với ngày mở \
 - `OpenedDate` SMALLDATETIME : ngày mở theo định dạng YYYYMMDD
 
 @Returns: 
-- Record set (DepositID, CustomerID, CustomerName, InterestRate, Term, TotalChanges, Balance, Fund, OpenedDate) khi thành công
+- Record set (DepositID, CustomerID, CustomerName, CurrentBalance, OpenedDate) khi thành công
 
 
 
@@ -151,7 +146,7 @@ dbo.getDepositDetailWithID : tìm phiếu gửi với MaPGT \
 - `DepositID` INT : MaGT
 
 @Returns: 
-- Record set (DepositID, CustomerID, CustomerName, InterestRate, Term, TotalChanges, Balance, Fund, OpenedDate) khi thành công
+- Record set (DepositID, CustomerID, CustomerName, CurrentBalance, OpenedDate) khi thành công
 
 
 
@@ -163,7 +158,7 @@ dbo.getDepositDetailWithDateAndID : tìm phiếu gửi với ngày mở và MaPG
 - `OpenedDate` SMALLDATETIME : ngày mở theo định dạng YYYYMMDD
 
 @Returns: 
-- Record set (DepositID, CustomerID, CustomerName, InterestRate, Term, TotalChanges, Balance, Fund, OpenedDate) khi thành công
+- Record set (DepositID, CustomerID, CustomerName, CurrentBalance, OpenedDate) khi thành công
 
 
 <hr>
@@ -172,18 +167,26 @@ dbo.getDepositDetailWithCitizenID : tìm phiếu gửi với CCCD \
 - `CitizenID` INT : CCCD 
 
 @Returns: 
-- Record set (DepositID, CustomerID, CustomerName, InterestRate, Term, TotalChanges, Balance, Fund, OpenedDate) khi thành công
+- Record set (DepositID, CustomerID, CustomerName, CurrentBalance, OpenedDate) khi thành công
 
 
 <hr>
 
-dbo.getDepositDetails: tra cứu phiếu gửi \
+dbo.searchDeposit: tra cứu phiếu gửi \
 @Params:
 - `DepositID` INT : MaGT (mặc định = NULL)
 - `CitizenID` INT : CCCD (mặc định = NULL)
 - `OpenedDate` SMALLDATETIME : ngày mở theo định dạng YYYYMMDD (mặc định = NULL) \
 @Returns: 
-- Record set (DepositID, CustomerID, CustomerName, InterestRate, Term, TotalChanges, Balance, Fund, OpenedDate) khi thành công, nếu DepositID khác NULL, chỉ trả về duy nhất 1 row, những trường hợp còn lại sẽ là kết hợp 
+- Record set (DepositID, CustomerID, CustomerName, CurrentBalance, OpenedDate) khi thành công, nếu DepositID khác NULL, chỉ trả về duy nhất 1 row, những trường hợp còn lại sẽ là kết hợp 
+
+
+<hr>
+dbo.searchDeposit: tra cứu phiếu gửi \
+@Params:
+- `DepositID` INT : MaGT \
+@Returns: 
+- Record set (CustomerID, CustomerName, CitizenID, PhoneNumber, CustomerAddress, DepositID, Fund, Term, InterestRate, TotalChanges,  CurrentBalance, OpenedDate, Withdrawer, WithdrawalDate) 
 
 
 ## Các tính năng liên quan đến rút
@@ -195,7 +198,7 @@ dbo.addWithdrawal: lập phiếu rút tiền \
 
 @Returns:
 - Record set (BankInterest, Fund, Withdrawn, TransactionDate): chi tiết phiếu rút tiền
-- 1: không có phiếu gửi trong CSDL]
+- 1: không có phiếu gửi `DepositID` trong CSDL
 
 
 <hr>
@@ -207,7 +210,6 @@ dbo.deleteWithdrawal: hủy phiếu rút tiền \
 @Returns:
 - 0: xóa thành công (nếu phiếu đã rút thì vẫn trả về 0)
 - 1: không có phiếu gửi trong CSDL
-- 2: đã hơn 30p thêm vào, không được xóa 
 
 
 # TABLE PROFITREPORTS + REPORTDETAILS: Bảng báo cáo ngày và chi tiết báo cáo ngày
@@ -220,7 +222,6 @@ dbo.makeReportByDay : tạo báo cáo ngày \
 - Hai Record sets: báo cáo và chi tiết ngày hôm đó nếu lập thành công
     + Báo cáo ngày (TotalRevenue, TotalCost, TotalProfit)
     + Báo cáo chi tiết (InterestTypeID, Revenue, Cost, Profit)
-- 1: nếu ngày lập báo cáo ở tương lai (> hiện tại)
 
 <hr>
 

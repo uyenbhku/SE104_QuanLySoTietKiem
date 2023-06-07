@@ -1,8 +1,8 @@
 -- Create new database named Savings, skip this if database was already created
-CREATE DATABASE Savings2
+CREATE DATABASE Savings3
 GO
 
-USE  Savings2
+USE  Savings3
 GO
 
 
@@ -149,7 +149,8 @@ ALTER TABLE InterestTypes ADD CONSTRAINT PK_InterestType PRIMARY KEY (InterestTy
 -- Add new column
 ALTER TABLE InterestTypes
 ADD Status BIT; -- NULL: opened, 1: blocked
-
+ALTER TABLE InterestTypes
+ADD InterestTypeName TEXT;
 
 
 
@@ -189,11 +190,14 @@ CREATE PROCEDURE dbo.addInterestType
 AS
 BEGIN
 	SET NOCOUNT ON
-	INSERT INTO InterestTypes (InterestRate, Term, MinimumTimeToWithdrawal)
-	VALUES (@InterestRate, @Term, @MinimumTimeToWithdrawal)
+	DECLARE @TypeName VARCHAR(11)
+	SELECT @TypeName = 'LS' + CONVERT(VARCHAR, @InterestRate) + '_KH' + CONVERT(VARCHAR, @Term)
+	INSERT INTO InterestTypes (InterestRate, Term, MinimumTimeToWithdrawal, InterestTypeName)
+	VALUES (@InterestRate, @Term, @MinimumTimeToWithdrawal, @TypeName)
 		-- return 0 thanh cong
 END
 GO
+
 
 
 -- STORED PROCEDURE: Hide/Block Interest Type
@@ -210,7 +214,7 @@ BEGIN
 	IF (EXISTS (SELECT * FROM InterestTypes 
 		WHERE InterestTypeID = @InterestTypeID))
 		RETURN 0 -- them thanh cong
-	ELSE RETURN 1 -- khong co LoaiTK trong CSDL
+	ELSE RAISERROR(50008, -1, -1) -- khong co LoaiTK trong CSDL
 END
 GO
 
@@ -229,7 +233,7 @@ BEGIN
 	IF (EXISTS (SELECT * FROM InterestTypes 
 		WHERE InterestTypeID = @InterestTypeID))
 		RETURN 0 -- thanh cong
-	ELSE RETURN 1 -- khong co MaLTK trong CSDL
+	ELSE RAISERROR(50008, -1, -1) -- khong co MaLTK trong CSDL
 END
 GO
 
@@ -273,7 +277,7 @@ BEGIN
 				RETURN 0 -- thanh cong
 		END
 	ELSE
-		RETURN 1 -- tham so NULL
+		RAISERROR(50008, -1, -1) -- loi khong co LoaiTK
 END
 GO
 
@@ -289,27 +293,27 @@ BEGIN
 	SET NOCOUNT ON;
 	IF (@Term IS NULL AND @InterestRate IS NULL)
 		BEGIN
-			SELECT InterestTypeID, InterestRate, Term, MinimumTimeToWithdrawal 
+			SELECT InterestTypeID, InterestTypeName, InterestRate, Term, MinimumTimeToWithdrawal 
 			FROM InterestTypes
 			WHERE Status IS NULL -- is not blocked/hidden
 		END
 	ELSE IF (@Term IS NULL)
 		BEGIN
-			SELECT InterestTypeID, InterestRate, Term, MinimumTimeToWithdrawal 
+			SELECT InterestTypeID, InterestTypeName, InterestTypeName, InterestRate, Term, MinimumTimeToWithdrawal 
 			FROM InterestTypes
 			WHERE Status IS NULL -- is not blocked/hidden
 				AND @InterestRate = InterestRate
 		END
 	ELSE IF (@InterestRate IS NULL)
 		BEGIN
-			SELECT InterestTypeID, InterestRate, Term, MinimumTimeToWithdrawal 
+			SELECT InterestTypeID, InterestTypeName, InterestRate, Term, MinimumTimeToWithdrawal 
 			FROM InterestTypes
 			WHERE Status IS NULL -- is not blocked/hidden
 				AND @Term = Term
 		END
 	ELSE
 		BEGIN
-			SELECT InterestTypeID, InterestRate, Term, MinimumTimeToWithdrawal 
+			SELECT InterestTypeID, InterestTypeName, InterestRate, Term, MinimumTimeToWithdrawal 
 			FROM InterestTypes
 			WHERE Status IS NULL -- is not blocked/hidden
 				AND @Term = Term AND @InterestRate = InterestRate
@@ -331,7 +335,7 @@ CREATE TABLE Deposits(
 	InterestTypeID INT NOT NULL, -- Loai tiet kiem
 	OpenedDate SMALLDATETIME,		  -- Ngay tao (tu dong)
 	Fund MONEY NOT NULL,			  -- So tien gui
-	Withdrawer VARCHAR(40),				-- Ten nguoi rut
+	Withdrawer VARCHAR(40)				-- Ten nguoi rut
 );
 -- Add primary key
 ALTER TABLE Deposits ADD CONSTRAINT PK_Deposit PRIMARY KEY (DepositID);
@@ -345,6 +349,8 @@ FOREIGN KEY (CustomerID) REFERENCES Customers(CustomerID);
 ALTER TABLE Deposits
 ADD CONSTRAINT FK_InterestTypeID
 FOREIGN KEY (InterestTypeID) REFERENCES InterestTypes(InterestTypeID);
+
+
 
 -- STORED PROCEDURE: INSERT INTO Deposits table
 -- Create trigger
@@ -432,8 +438,12 @@ BEGIN
 	DECLARE @OpenedDate SMALLDATETIME
 	SELECT @OpenedDate = OpenedDate FROM Deposits
 		WHERE DepositID = @DepositID
+	-- cannot delete after 30 minutes 
 	IF (DATEDIFF(minute, @OpenedDate, GETDATE()) > 30) 
-		RETURN 2
+		BEGIN
+			RAISERROR(50005, -1, -1)
+			RETURN
+		END 
 
 	DELETE FROM Deposits
 	WHERE DepositID = @DepositID
@@ -449,15 +459,13 @@ AS
 BEGIN
 	SET NOCOUNT ON;
 	SELECT TOP 1 WITH TIES D.DepositID, D.CustomerID, 
-		   CustomerName, InterestRate, Term, 
-		   Balance - Fund as TotalChanges,
-		   Balance, Fund, OpenedDate
-	FROM Deposits D JOIN Customers C 
+		   CustomerName, ISNULL(Balance, Fund) AS CurrentBalance, OpenedDate
+	FROM Deposits D LEFT JOIN Transactions T
+		ON T.DepositID = D.DepositID
+		JOIN Customers C 
 		ON D.CustomerID = C.CustomerID
 		JOIN InterestTypes IT
 		ON D.InterestTypeID = IT.InterestTypeID
-		JOIN Transactions T
-		ON T.DepositID = D.DepositID
 	WHERE @OpenedDate = CAST(CONVERT(VARCHAR(10), D.OpenedDate, 101) AS DATE)
 	ORDER BY ROW_NUMBER() OVER(PARTITION BY D.DepositID ORDER BY TransactionID DESC)
 END
@@ -471,19 +479,13 @@ AS
 BEGIN
 	SET NOCOUNT ON;
 	SELECT TOP 1 WITH TIES D.DepositID, D.CustomerID, 
-		   CustomerName, 
-		   InterestRate, 
-		   Term, 
-		   Balance - Fund as TotalChanges,
-		   Balance,
-		   Fund,
-		   OpenedDate
-	FROM Deposits D JOIN Customers C 
+		   CustomerName, ISNULL(Balance, Fund) AS CurrentBalance, OpenedDate
+	FROM Deposits D LEFT JOIN Transactions T
+		ON T.DepositID = D.DepositID
+		JOIN Customers C 
 		ON D.CustomerID = C.CustomerID
 		JOIN InterestTypes IT
 		ON D.InterestTypeID = IT.InterestTypeID
-		JOIN Transactions T
-		ON T.DepositID = D.DepositID
 	WHERE @DepositID = D.DepositID
 	ORDER BY ROW_NUMBER() OVER(PARTITION BY D.DepositID ORDER BY TransactionID DESC)
 END
@@ -510,9 +512,28 @@ GO
 
 
 
+GO
+CREATE PROCEDURE dbo.getDepositDetailWithCitizenID
+			@CitizenID VARCHAR(20)
+AS 
+BEGIN
+	SET NOCOUNT ON;
+	SELECT TOP 1 WITH TIES D.DepositID, D.CustomerID, 
+			CustomerName, ISNULL(Balance, Fund) AS CurrentBalance, OpenedDate
+	FROM Deposits D LEFT JOIN Transactions T
+		ON T.DepositID = D.DepositID 
+		JOIN Customers C 
+		ON D.CustomerID = C.CustomerID
+		JOIN InterestTypes IT
+		ON D.InterestTypeID = IT.InterestTypeID
+	WHERE @CitizenID = C.CitizenID
+	ORDER BY ROW_NUMBER() OVER(PARTITION BY D.DepositID ORDER BY TransactionID DESC)
+END
+GO
+
 
 GO
-CREATE PROCEDURE dbo.getDepositDetails
+CREATE PROCEDURE dbo.searchDeposit
 			@DepositID INT = NULL, 
 			@CitizenID VARCHAR(20) = NULL,
 			@OpenedDate SMALLDATETIME = NULL
@@ -530,47 +551,62 @@ BEGIN
 	ELSE IF (@CitizenID IS NOT NULL AND @OpenedDate IS NOT NULL)
 		BEGIN
 			SELECT TOP 1 WITH TIES D.DepositID, D.CustomerID, 
-						CustomerName, InterestRate, Term, 
-						Balance - Fund as TotalChanges,
-						Balance, Fund, OpenedDate
-				FROM Deposits D JOIN Customers C 
-					ON D.CustomerID = C.CustomerID
-					JOIN InterestTypes IT
-					ON D.InterestTypeID = IT.InterestTypeID
-					JOIN Transactions T
+						CustomerName, ISNULL(Balance, Fund) AS CurrentBalance, OpenedDate
+				FROM Deposits D LEFT JOIN Transactions T
 					ON T.DepositID = D.DepositID
+					JOIN Customers C 
+					ON D.CustomerID = C.CustomerID
+			 		JOIN InterestTypes IT
+					ON D.InterestTypeID = IT.InterestTypeID
 				WHERE @CitizenID = C.CitizenID 
 					AND @OpenedDate = CAST(CONVERT(VARCHAR(10), D.OpenedDate, 101) AS DATE)
 				ORDER BY ROW_NUMBER() OVER(PARTITION BY D.DepositID ORDER BY TransactionID DESC)
 		END
-	ELSE 
+	ELSE IF(@OpenedDate IS NOT NULL)
 		BEGIN
 			EXEC dbo.getDepositDetailWithDate @OpenedDate
+		END
+	ELSE
+		BEGIN
+			SELECT TOP 1 WITH TIES D.DepositID, D.CustomerID, 
+						CustomerName, ISNULL(Balance, Fund) AS CurrentBalance, OpenedDate
+				FROM Deposits D LEFT JOIN Transactions T
+					ON T.DepositID = D.DepositID
+					JOIN Customers C 
+					ON D.CustomerID = C.CustomerID
+			 		JOIN InterestTypes IT
+					ON D.InterestTypeID = IT.InterestTypeID
+				ORDER BY ROW_NUMBER() OVER(PARTITION BY D.DepositID ORDER BY TransactionID DESC)
 		END
 END
 GO
 
 
 GO
-CREATE PROCEDURE dbo.getDepositDetailWithCitizenID
-			@CitizenID VARCHAR(20)
-AS 
+CREATE PROCEDURE dbo.getDeposit
+					@DepositID INT
+AS
 BEGIN
 	SET NOCOUNT ON;
-	SELECT TOP 1 WITH TIES D.DepositID, D.CustomerID, 
-			CustomerName, InterestRate, Term, 
-			Balance - Fund as TotalChanges,
-			Balance, Fund, OpenedDate
-	FROM Deposits D JOIN Customers C 
+	SELECT TOP 1 WITH TIES D.CustomerID, 
+			CustomerName, CitizenID, PhoneNumber, 
+			CustomerAddress,
+			D.DepositID, Fund,
+			Term, InterestRate, 
+			ISNULL(Balance - Fund, 0) AS TotalChanges,
+			ISNULL(Balance, Fund) AS CurrentBalance, OpenedDate,
+			Withdrawer, TransactionDate AS WithdrawalDate
+	FROM Deposits D LEFT JOIN Transactions T
+		ON T.DepositID = D.DepositID
+		JOIN Customers C 
 		ON D.CustomerID = C.CustomerID
 		JOIN InterestTypes IT
 		ON D.InterestTypeID = IT.InterestTypeID
-		JOIN Transactions T
-		ON T.DepositID = D.DepositID
-	WHERE @CitizenID = C.CitizenID
+	WHERE @DepositID = D.DepositID
 	ORDER BY ROW_NUMBER() OVER(PARTITION BY D.DepositID ORDER BY TransactionID DESC)
 END
 GO
+
 
 
 -- Create trigger after update on Deposits
@@ -599,7 +635,7 @@ BEGIN
 			--------
 			-- Tinh so ngay gui
 			DECLARE @NumOfDaysDeposited INT
-			SELECT @NumOfDaysDeposited = DATEDIFF(minute, OpenedDate, GETDATE()) - 1 FROM deleted -- minute for testing
+			SELECT @NumOfDaysDeposited = DATEDIFF(day, OpenedDate, GETDATE()) - 1 FROM deleted -- s for testing
 			-- Kiem tra dieu kien so ngay gui
 			DECLARE @MinimumTimeToWithdrawal INT
 			SELECT @MinimumTimeToWithdrawal = MinimumTimeToWithDrawal FROM InterestTypes
@@ -672,7 +708,7 @@ BEGIN
 		-- Xoa Transaction truoc do neu la co ky han va rut truoc ky han
 			-- Tinh so ngay gui
 			DECLARE @NoDaysDeposited INT
-			SELECT @NoDaysDeposited = DATEDIFF(minute, OpenedDate, @WithdrawalDate) - 1  -- minute de test
+			SELECT @NoDaysDeposited = DATEDIFF(day, OpenedDate, @WithdrawalDate) - 1  -- minute for testing
 				FROM Deposits
 				WHERE DepositID = @DepositID
 			-- Tim ky han
@@ -717,12 +753,15 @@ BEGIN
 		RETURN 
 	UPDATE Deposits
 	SET Withdrawer = @Withdrawer
-	WHERE DepositID = @DepositID
-	SELECT TOP 1 -Changes - Fund AS BankInterest,
-			Fund,
-			-Changes AS Withdrawn, 
-			TransactionDate
+	WHERE DepositID = @DepositID 
+	-- noi dung can in ra (cung voi noi dung input)
+	SELECT TOP 1 C.CustomerID, CustomerName, -- thong tin khach hang
+			- Changes - Fund AS BankInterest, -- tong tien lai
+			Fund,		-- tien gui
+			-Changes AS Withdrawn,  -- tong tien rut
+			TransactionDate		-- thoi gian rut
 		FROM Transactions T JOIN Deposits D ON T.DepositID = D.DepositID
+			 JOIN Customers C ON C.CustomerID = D.CustomerID
 		WHERE T.DepositID = @DepositID
 		ORDER BY TransactionID DESC
 END
@@ -747,7 +786,10 @@ BEGIN
 		WHERE DepositID = @DepositID 
 		ORDER BY TransactionID DESC
 	IF (DATEDIFF(minute, @WithdrawalDate, GETDATE()) > 30) 
-		RETURN 2 -- cannot delete after 30 minutes
+		BEGIN
+			RAISERROR(50005, -1, -1) -- cannot delete after 30 minutes
+			RETURN
+		END
 	UPDATE Deposits
 	SET Withdrawer = NULL
 		WHERE DepositID = @DepositID
@@ -802,7 +844,7 @@ BEGIN
 				FROM (SELECT TOP 2 *	
 					FROM Transactions	
 					WHERE DepositID = @DepositID 	
-					ORDER BY TransactionID DESC) AS Temp	
+					ORDER BY TransactionID DESC) AS Temp
 				ORDER BY TransactionID ASC;	
 			-- Check if this deposit slip has been withdrawn 	
 			IF (@Balance = 0)	
@@ -855,8 +897,10 @@ CREATE TABLE Params(
 	MinimumDeposit MONEY NOT NULL   -- So tien gui toi thieu
 );  
 
+
+
 GO
-CREATE TRIGGER dbo.trgPreventInsertion
+CREATE TRIGGER dbo.trgPreventInsertion -- khong cho insert nhieu hon 1 record tham so
 ON Params
 AFTER INSERT
 AS
@@ -874,7 +918,7 @@ GO
 
 
 GO
-CREATE TRIGGER dbo.trgPreventDeletion
+CREATE TRIGGER dbo.trgPreventDeletion -- khong cho delete record tham so da them, chi co the thay doi
 ON Params
 AFTER DELETE
 AS
@@ -893,7 +937,7 @@ GO
 -- STORED PROCEDURE: UPDATE MINIMUM DEPOSIT VALUE
 -- Define procedure 
 GO
-CREATE PROCEDURE dbo.updateMinimumDeposit 
+CREATE PROCEDURE dbo.updateMinimumDeposit -- thay doi so tien gui toi thieu 
 					@NewMinimumDeposit TEXT
 AS
 BEGIN
@@ -952,7 +996,8 @@ BEGIN
 	SET NOCOUNT ON
 	IF (@Date > GETDATE())  -- cannot create reports for the future
 		BEGIN
-			RETURN 1
+			RAISERROR(50022, -1, -1)
+			RETURN
 		END
 	-- if exists a report, only update existed record
 	IF EXISTS (SELECT * FROM ProfitReports WHERE RecordedDate=@Date)
@@ -1025,7 +1070,8 @@ BEGIN
 	-- cannot summarise if the month is invalid or time in the future
 	IF (@Month < 1 OR @Month > 12 OR @Month > MONTH(GETDATE()) OR @Year > YEAR(GETDATE())) -- invalid month 
 		BEGIN
-			RETURN 1 -- cannot summarise report
+			RAISERROR(50022, -1, -1)
+			RETURN  -- cannot summarise report
 		END
 	SELECT SUM(TotalRevenue) AS MonthRevenue,
 		   SUM(TotalCost) AS MonthCost, 
