@@ -182,11 +182,16 @@ dbo.searchDeposit: tra cứu phiếu gửi \
 
 
 <hr>
-dbo.searchDeposit: tra cứu phiếu gửi \
+dbo.getDeposit: lấy chi tiết phiếu gửi \
 @Params:
 - `DepositID` INT : MaGT \
 @Returns: 
 - Record set (CustomerID, CustomerName, CitizenID, PhoneNumber, CustomerAddress, DepositID, Fund, Term, InterestRate, TotalChanges,  CurrentBalance, OpenedDate, Withdrawer, WithdrawalDate) 
+
+<hr>
+dbo.sumActiveDeposit: tính tổng số tiền tiết kiệm đang gửi \
+@Returns:
+- Total : tổng số tiền đang gửi
 
 
 ## Các tính năng liên quan đến rút

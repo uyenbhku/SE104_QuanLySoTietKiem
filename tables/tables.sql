@@ -885,6 +885,16 @@ END
 GO
 
 
+-- STORED PROCEDURE: Sum of active deposits (tong tien gui cua cac phieu gui chua rut)
+GO 
+CREATE PROCEDURE dbo.sumActiveDeposit 
+AS
+BEGIN
+	SELECT SUM(Fund) AS Total
+	FROM Deposits 
+	WHERE Withdrawer IS NULL
+END
+GO
 
 
 /*====================================================================
@@ -1073,7 +1083,7 @@ BEGIN
 			RAISERROR(50022, -1, -1)
 			RETURN  -- cannot summarise report
 		END
-	SELECT SUM(TotalRevenue) AS MonthRevenue,
+	SELECT SUM(TotalRevenue) AS MonthRevenue, 
 		   SUM(TotalCost) AS MonthCost, 
 		   SUM(TotalProfit) AS MonthProfit
 	FROM ProfitReports
