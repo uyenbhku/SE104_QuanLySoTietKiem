@@ -1,0 +1,77 @@
+.iconSum {
+  background-image: url("../../assets/icon/sum.svg");
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+.iconSend {
+  background-image: url("../../assets/icon/send.svg");
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+.iconWithdraw {
+  background-image: url("../../assets/icon/withdraw.svg");
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+.iconAdd {
+  background-image: url("../../assets/icon/add.svg");
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+.iconSidebar {
+  background-image: url("../../assets/icon/sidebarActive.svg");
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+.iconDashboard {
+  background-image: url("../../assets/icon/dashboard.svg");
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+.iconSavings {
+  background-image: url("../../assets/icon/savings.svg");
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+.iconSaved {
+  background-image: url("../../assets/icon/saved.svg");
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+.iconProfile {
+  background-image: url("../../assets/icon/profile.svg");
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+.iconSettings {
+  background-image: url("../../assets/icon/settings.svg");
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+.iconSettings {
+  background-image: url("../../assets/icon/settings.svg");
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+.iconActive {
+  width: 0.5625rem;
+  height: 3em;
+  background-position: 50%;
+  background-image: url("../../assets/icon/active.svg");
+  background-size: contain;
+  background-repeat: no-repeat;
+  margin-left: auto;
+  align-self: center;
+}
+
+.iconLogout {
+  background-image: url("../../assets/icon/logout.svg");
+  background-size: contain;
+  background-repeat: no-repeat;
+}
