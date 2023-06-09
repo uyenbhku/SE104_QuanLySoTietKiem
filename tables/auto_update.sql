@@ -28,7 +28,7 @@ FROM (SELECT TOP 1 WITH TIES *, DATEDIFF(day, Transactions.TransactionDate, GETD
 		ORDER BY ROW_NUMBER() OVER(PARTITION BY DepositID ORDER BY TransactionID DESC)) 
 	AS LatestTransactions JOIN Deposits ON LatestTransactions.DepositID = Deposits.DepositID
 	JOIN InterestTypes ON Deposits.InterestTypeID = InterestTypes.InterestTypeID
-WHERE Withdrawer IS NULL
+WHERE Withdrawer IS NULL AND NoDays > 0
 	  AND (Term = 0 OR NoDays % (Term * 30) = 0) -- minutes
 
 
@@ -38,7 +38,7 @@ WHERE Withdrawer IS NULL
 INSERT INTO Transactions
 SELECT DepositID, Fund, Fund, GETDATE() 
 FROM Deposits D
-WHERE Withdrawer IS NULL
+WHERE Withdrawer IS NULL 
 	 AND NOT EXISTS (SELECT * FROM Transactions T 
 		    WHERE D.DepositID = T.DepositID)
 
