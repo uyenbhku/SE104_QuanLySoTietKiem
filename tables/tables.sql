@@ -583,27 +583,50 @@ GO
 
 
 GO
-CREATE PROCEDURE dbo.getDeposit
+ALTER PROCEDURE dbo.getDeposit
 					@DepositID INT
 AS
 BEGIN
 	SET NOCOUNT ON;
-	SELECT TOP 1 WITH TIES D.CustomerID, 
-			CustomerName, CitizenID, PhoneNumber, 
-			CustomerAddress,
-			D.DepositID, Fund,
-			Term, InterestRate, 
-			ISNULL(Balance - Fund, 0) AS TotalChanges,
-			ISNULL(Balance, Fund) AS CurrentBalance, OpenedDate,
-			Withdrawer, TransactionDate AS WithdrawalDate
-	FROM Deposits D LEFT JOIN Transactions T
-		ON T.DepositID = D.DepositID
-		JOIN Customers C 
-		ON D.CustomerID = C.CustomerID
-		JOIN InterestTypes IT
-		ON D.InterestTypeID = IT.InterestTypeID
-	WHERE @DepositID = D.DepositID
-	ORDER BY ROW_NUMBER() OVER(PARTITION BY D.DepositID ORDER BY TransactionID DESC)
+	-- neu phieu da rut 
+	IF (EXISTS (SELECT * FROM Deposits WHERE @DepositID = DepositID AND Withdrawer IS NOT NULL))
+		BEGIN
+			SELECT TOP 1 WITH TIES D.CustomerID, 
+					CustomerName, CitizenID, PhoneNumber, 
+					CustomerAddress,
+					D.DepositID, Fund,
+					Term, InterestRate, 
+					ISNULL(-Changes - Fund, 0) AS TotalChanges, -- tinh tong tien lai
+					ISNULL(Balance, Fund) AS CurrentBalance, OpenedDate,
+					Withdrawer, TransactionDate AS WithdrawalDate
+			FROM Deposits D LEFT JOIN Transactions T
+				ON T.DepositID = D.DepositID
+				JOIN Customers C 
+				ON D.CustomerID = C.CustomerID
+				JOIN InterestTypes IT
+				ON D.InterestTypeID = IT.InterestTypeID
+			WHERE @DepositID = D.DepositID
+			ORDER BY ROW_NUMBER() OVER(PARTITION BY D.DepositID ORDER BY TransactionID DESC)
+		END
+	ELSE -- neu phieu chua rut
+		BEGIN
+			SELECT TOP 1 WITH TIES D.CustomerID, 
+					CustomerName, CitizenID, PhoneNumber, 
+					CustomerAddress,
+					D.DepositID, Fund,
+					Term, InterestRate, 
+					ISNULL(Balance - Fund, 0) AS TotalChanges,
+					ISNULL(Balance, Fund) AS CurrentBalance, OpenedDate,
+					Withdrawer, TransactionDate AS WithdrawalDate
+			FROM Deposits D LEFT JOIN Transactions T
+				ON T.DepositID = D.DepositID
+				JOIN Customers C 
+				ON D.CustomerID = C.CustomerID
+				JOIN InterestTypes IT
+				ON D.InterestTypeID = IT.InterestTypeID
+			WHERE @DepositID = D.DepositID
+			ORDER BY ROW_NUMBER() OVER(PARTITION BY D.DepositID ORDER BY TransactionID DESC)
+		END
 END
 GO
 
@@ -611,7 +634,7 @@ GO
 
 -- Create trigger after update on Deposits
 GO
-CREATE TRIGGER trgInsertandDeleteWithdrawal
+ALTER TRIGGER trgInsertandDeleteWithdrawal
 ON dbo.Deposits
 AFTER UPDATE
 AS
@@ -641,13 +664,17 @@ BEGIN
 			SELECT @MinimumTimeToWithdrawal = MinimumTimeToWithdrawal FROM InterestTypes
 				WHERE InterestTypeID = (SELECT InterestTypeID FROM deleted)
 
+			--IF (@NumOfDaysDeposited != -1)
+			--	BEGIN
 			IF (@NumOfDaysDeposited < @MinimumTimeToWithdrawal)
 				BEGIN
 					ROLLBACK TRANSACTION
 					RAISERROR(50017, -1, -1)
 					RETURN
 				END
-				
+			--	END
+			--ELSE SET @NumOfDaysDeposited = 0 -- neu ngay rut trung ngay gui 
+
 			-- Lay so du trong ngay cap nhat moi nhat
 			DECLARE @Balance MONEY,
 					@NewBalance MONEY
