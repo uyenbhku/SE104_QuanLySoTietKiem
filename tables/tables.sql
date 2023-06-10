@@ -635,10 +635,10 @@ BEGIN
 			--------
 			-- Tinh so ngay gui
 			DECLARE @NumOfDaysDeposited INT
-			SELECT @NumOfDaysDeposited = DATEDIFF(day, OpenedDate, GETDATE()) - 1 FROM deleted -- s for testing
+			SELECT @NumOfDaysDeposited = DATEDIFF(day, OpenedDate, GETDATE()) - 1 FROM deleted -- minutes for testing
 			-- Kiem tra dieu kien so ngay gui
 			DECLARE @MinimumTimeToWithdrawal INT
-			SELECT @MinimumTimeToWithdrawal = MinimumTimeToWithDrawal FROM InterestTypes
+			SELECT @MinimumTimeToWithdrawal = MinimumTimeToWithdrawal FROM InterestTypes
 				WHERE InterestTypeID = (SELECT InterestTypeID FROM deleted)
 
 			IF (@NumOfDaysDeposited < @MinimumTimeToWithdrawal)
@@ -647,6 +647,7 @@ BEGIN
 					RAISERROR(50017, -1, -1)
 					RETURN
 				END
+				
 			-- Lay so du trong ngay cap nhat moi nhat
 			DECLARE @Balance MONEY,
 					@NewBalance MONEY
@@ -751,6 +752,11 @@ BEGIN
 		RETURN 1 -- khong co phieu rut trong CSDL
 	IF (@Withdrawer IS NULL)
 		RETURN 
+	DECLARE @CurrentWithdrawer VARCHAR(40)
+	SELECT @CurrentWithdrawer = Withdrawer 
+	FROM Deposits WHERE @DepositID = DepositID 
+	IF (@CurrentWithdrawer IS NOT NULL)
+		RETURN 2 -- phieu da duoc rut
 	UPDATE Deposits
 	SET Withdrawer = @Withdrawer
 	WHERE DepositID = @DepositID 
@@ -1110,8 +1116,8 @@ NGUOIDUNG
 CREATE TABLE Accounts( -- NGUOIDUNG
 	AccountID INT NOT NULL,
 	Username VARCHAR(20),
-	AccountTypeID INT,
 	AccountPassword VARCHAR(50),
+	AccountTypeID INT,
 );
 
 ALTER TABLE Accounts 
@@ -1121,8 +1127,6 @@ PRIMARY KEY(AccountID);
 ALTER TABLE Accounts 
 ADD CONSTRAINT FK_Accounts_AccountTypes 
 FOREIGN KEY (AccountTypeID) REFERENCES AccountTypes(AccountTypeID);
-
-
 /*====================================================================
 CHUCNANG
 ======================================================================*/

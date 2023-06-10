@@ -203,7 +203,9 @@ dbo.addWithdrawal: lập phiếu rút tiền \
 
 @Returns:
 - Record set (BankInterest, Fund, Withdrawn, TransactionDate): chi tiết phiếu rút tiền
-- 1: không có phiếu gửi `DepositID` trong CSDL
+- 1: không có phiếu gửi `DepositID` trong CSDL 
+- 2: phiếu đã được rút
+
 
 
 <hr>
