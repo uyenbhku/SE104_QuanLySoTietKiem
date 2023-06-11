@@ -1,0 +1,24 @@
+<div class="main">
+    <div class="mainHeader">
+        <button type="button" class="sidebarButton">
+            <i class="icon iconSidebar"></i>
+        </button>
+        <p>Rút tiền</p>
+    </div>
+    <div class="wrapper">
+        <form action="#" id="form" method="POST">
+            <div class="depositIDBox box">
+                <label for="depositID">Mã phiếu gửi:</label>
+                <input type="text" id="depositID" name="depositID" pattern="\d*" title="Vui lòng chỉ nhập số" required>
+            </div>
+            <div class="fullnameBox box">
+                <label for="fullname">Tên người rút:</label>
+                <input type="text" id="fullname" name="fullname" maxlength="80" required>
+            </div>
+            <div id="btn_side">
+                <input id="confirmBtn" type="submit" value="Đồng ý"></input>
+                <a href="./home"><button id="gobackBtn" type="button">Quay lại</button></button></a>
+            </div>
+        </form>
+    </div>
+</div>
