@@ -88,7 +88,7 @@ AS
 BEGIN
 	SET NOCOUNT ON
 	IF (NOT EXISTS (SELECT * FROM Customers WHERE CustomerID = @CustomerID))
-		RETURN 1
+		SELECT 1 AS ERROR
 	IF (@CitizenID IS NOT NULL)
 		BEGIN
 			UPDATE Customers
@@ -213,7 +213,7 @@ BEGIN
 	WHERE InterestTypeID = @InterestTypeID
 	IF (EXISTS (SELECT * FROM InterestTypes 
 		WHERE InterestTypeID = @InterestTypeID))
-		RETURN 0 -- them thanh cong
+		SELECT 0 AS Status -- them thanh cong
 	ELSE RAISERROR(50008, -1, -1) -- khong co LoaiTK trong CSDL
 END
 GO
@@ -232,7 +232,7 @@ BEGIN
 	WHERE InterestTypeID = @InterestTypeID
 	IF (EXISTS (SELECT * FROM InterestTypes 
 		WHERE InterestTypeID = @InterestTypeID))
-		RETURN 0 -- thanh cong
+		SELECT 0 AS Status -- thanh cong
 	ELSE RAISERROR(50008, -1, -1) -- khong co MaLTK trong CSDL
 END
 GO
@@ -274,7 +274,7 @@ BEGIN
 			WHERE InterestTypeID = @InterestTypeID
 			IF (EXISTS (SELECT * FROM InterestTypes 
 				WHERE InterestTypeID = @InterestTypeID))
-				RETURN 0 -- thanh cong
+				SELECT 0 -- thanh cong
 		END
 	ELSE
 		RAISERROR(50008, -1, -1) -- loi khong co LoaiTK
@@ -409,7 +409,7 @@ BEGIN
 	IF (NOT EXISTS (SELECT * FROM InterestTypes WHERE @InterestTypeID = InterestTypeID) -- invalid Type
 		OR NOT EXISTS (SELECT * FROM Customers WHERE @CustomerID = CustomerID)) -- invalid customer
 		BEGIN
-			RETURN 1 -- khong co KhachHang hoac LoaiTK
+			SELECT 1 AS ERROR -- khong co KhachHang hoac LoaiTK
 		END
 	-- insert new record
 	DECLARE @OutputRecord TABLE (ID INT)
@@ -433,7 +433,7 @@ BEGIN
 	SET NOCOUNT ON
 	IF (NOT EXISTS (SELECT * FROM Deposits WHERE DepositID = @DepositID))
 		BEGIN
-			RETURN 1
+			SELECT 1 AS ERROR -- khong co phieu trong DB
 		END
 	DECLARE @OpenedDate SMALLDATETIME
 	SELECT @OpenedDate = OpenedDate FROM Deposits
@@ -447,7 +447,7 @@ BEGIN
 
 	DELETE FROM Deposits
 	WHERE DepositID = @DepositID
-	RETURN 0
+	SELECT 0
 END
 GO
 
@@ -617,7 +617,7 @@ BEGIN
 					Term, InterestRate, 
 					ISNULL(Balance - Fund, 0) AS TotalChanges,
 					ISNULL(Balance, Fund) AS CurrentBalance, OpenedDate,
-					Withdrawer, TransactionDate AS WithdrawalDate
+					Withdrawer, NULL AS WithdrawalDate
 			FROM Deposits D LEFT JOIN Transactions T
 				ON T.DepositID = D.DepositID
 				JOIN Customers C 
@@ -776,14 +776,14 @@ BEGIN
 	SET NOCOUNT ON
 	IF (NOT EXISTS (SELECT * FROM Deposits
 					WHERE DepositID = @DepositID))
-		RETURN 1 -- khong co phieu rut trong CSDL
+		SELECT 1 AS Error -- khong co phieu rut trong CSDL
 	IF (@Withdrawer IS NULL)
 		RETURN 
 	DECLARE @CurrentWithdrawer VARCHAR(40)
 	SELECT @CurrentWithdrawer = Withdrawer 
 	FROM Deposits WHERE @DepositID = DepositID 
 	IF (@CurrentWithdrawer IS NOT NULL)
-		RETURN 2 -- phieu da duoc rut
+		SELECT 2 AS Error-- phieu da duoc rut
 	UPDATE Deposits
 	SET Withdrawer = @Withdrawer
 	WHERE DepositID = @DepositID 
@@ -810,7 +810,7 @@ AS
 BEGIN
 	SET NOCOUNT ON
 	IF (NOT EXISTS (SELECT * FROM Transactions WHERE DepositID = @DepositID))
-		RETURN 1 --
+		SELECT 1 AS Error --
 
 	-- cannot delete records that were created after 30 minutes
 	DECLARE @WithdrawalDate SMALLDATETIME
@@ -1028,24 +1028,21 @@ ADD CONSTRAINT FK_RecordedDate
 FOREIGN KEY (RecordedDate) REFERENCES ProfitReports(RecordedDate);
 
 
-
-
--- STORED PROCEDURE: MAKE REPORT By Day
-GO
-CREATE PROCEDURE dbo.makeReportByDay
-					@Date Date -- format 'ydm'
-AS 
+GO 
+CREATE PROCEDURE dbo.calculateReportByDay
+				@Date DATE
+AS
 BEGIN
 	SET NOCOUNT ON
-	IF (@Date > GETDATE())  -- cannot create reports for the future
+	-- if exists a report, only update existed today record 
+	IF (EXISTS (SELECT * FROM ProfitReports WHERE RecordedDate=@Date))
 		BEGIN
-			RAISERROR(50022, -1, -1)
-			RETURN
-		END
-	-- if exists a report, only update existed record
-	IF EXISTS (SELECT * FROM ProfitReports WHERE RecordedDate=@Date)
-		BEGIN
-			DELETE FROM ReportDetails WHERE RecordedDate=@Date
+			IF (DATEDIFF(day, @Date, GETDATE()) = 0) -- update today report
+				DELETE FROM ReportDetails WHERE RecordedDate=@Date
+			ELSE 
+				BEGIN
+					RETURN
+				END
 		END
 	-- create a new report
 	ELSE
@@ -1063,7 +1060,7 @@ BEGIN
 		FROM (
 				SELECT ISNULL(CAST(OpenedDate AS DATE), @Date) AS RecordedDate, 
 						 IT.InterestTypeID, 
-						 ISNULL(SUM(Fund),0) AS TotalRevenueEachType
+						 SUM(ISNULL(Fund,0)) AS TotalRevenueEachType
 				FROM (SELECT * FROM Deposits WHERE CAST(OpenedDate AS DATE) = @Date) Opens -- bang phu luu cac PhieuGT vao ngay @Date
 				RIGHT JOIN InterestTypes IT ON IT.InterestTypeID = Opens.InterestTypeID
 				GROUP BY CAST(OpenedDate AS DATE), IT.InterestTypeID
@@ -1072,25 +1069,43 @@ BEGIN
 			(
 				SELECT ISNULL(CAST(TransactionDate AS DATE), @Date) AS RecordedDate, 
 						InterestTypes.InterestTypeID, 
-						-ISNULL(SUM(Changes), 0) AS TotalCostEachType
+						-SUM(ISNULL(Changes, 0)) AS TotalCostEachType
 				FROM (
-						SELECT TOP 1 * FROM Transactions
+						SELECT * FROM Transactions
 						WHERE Changes < 0 -- is a withdrawal
 						AND CAST(TransactionDate AS DATE) = @Date -- at the given date
-						ORDER BY TransactionDate DESC
 					) AS MoneyWithdrawn -- luu nhung transactions rut tien vao ngay @Date
 				JOIN Deposits D ON D.DepositID = MoneyWithdrawn.DepositID
 				RIGHT JOIN InterestTypes ON InterestTypes.InterestTypeID = D.InterestTypeID
 				GROUP BY CAST(TransactionDate AS DATE), InterestTypes.InterestTypeID
 			) AS Costs -- bang phu luu ngay rut, loaiTK, tong tien rut ra loaiTK do
 			ON Costs.InterestTypeID = Revenues.InterestTypeID
-
 	-- summary details
 	UPDATE ProfitReports
 	SET TotalRevenue = (SELECT SUM(Revenue) FROM ReportDetails WHERE RecordedDate = @Date),
 		TotalCost = (SELECT SUM(Cost) FROM ReportDetails WHERE RecordedDate = @Date),
 		TotalProfit = (SELECT SUM(Profit) FROM ReportDetails WHERE RecordedDate = @Date)
 	WHERE RecordedDate = @Date;
+END
+GO
+
+
+-- STORED PROCEDURE: MAKE REPORT By Day
+GO
+CREATE PROCEDURE dbo.makeReportByDay
+					@Date DATE -- format 'ydm'
+AS 
+BEGIN
+	SET NOCOUNT ON
+	IF (@Date > GETDATE())  -- cannot create reports for the future
+		BEGIN
+			RAISERROR(50022, -1, -1)
+			RETURN
+		END
+	
+	EXEC dbo.calculateReportByDay @Date
+
+	
 	-- return reports
 	SELECT TotalRevenue, TotalCost, TotalProfit
 		 FROM ProfitReports WHERE RecordedDate = @Date
@@ -1115,6 +1130,31 @@ BEGIN
 		BEGIN
 			RAISERROR(50022, -1, -1)
 			RETURN  -- cannot summarise report
+		END
+	-- auto create reports for the days in month that was not created
+	DECLARE @Day INT, @CurrentDate DATE, @NoDays INT
+	
+	SET @Day = 1
+	SET @CurrentDate = CONCAT(CONVERT(NVARCHAR, @Year),'-', CONVERT(NVARCHAR, @Month), '-', CONVERT(NVARCHAR, @Day))
+	IF DATEDIFF(day, GETDATE(), EOMONTH ( @CurrentDate )) >= 0 -- is the current month
+		SET @NoDays = DATEDIFF(day, @CurrentDate, GETDATE()) + 1
+	ELSE		-- is a month in the past
+		SET @NoDays = DATEDIFF(day, @CurrentDate, EOMONTH ( @CurrentDate )) + 1
+
+	WHILE (@Day < @NoDays)
+		BEGIN
+			IF (NOT EXISTS (SELECT * FROM ProfitReports WHERE @CurrentDate = RecordedDate))
+				BEGIN
+					EXEC dbo.calculateReportByDay @CurrentDate
+				END
+			SET @Day = @Day + 1
+			SET @CurrentDate = CONCAT(CONVERT(NVARCHAR, @Year),'-', CONVERT(NVARCHAR, @Month), '-', CONVERT(NVARCHAR, @Day))
+		END
+	-- update latest report for today if required
+	IF (DATEDIFF(day, @CurrentDate, GETDATE()) = 0)
+		BEGIN
+			INSERT INTO ProfitReports
+				EXEC dbo.calculateReportByDay @CurrentDate
 		END
 	SELECT SUM(TotalRevenue) AS MonthRevenue, 
 		   SUM(TotalCost) AS MonthCost, 
