@@ -2,6 +2,7 @@
 CREATE DATABASE Savings3
 GO
 
+
 USE  Savings3
 GO
 
@@ -410,6 +411,7 @@ BEGIN
 		OR NOT EXISTS (SELECT * FROM Customers WHERE @CustomerID = CustomerID)) -- invalid customer
 		BEGIN
 			SELECT 1 AS ERROR -- khong co KhachHang hoac LoaiTK
+			RETURN 
 		END
 	-- insert new record
 	DECLARE @OutputRecord TABLE (ID INT)
@@ -583,7 +585,7 @@ GO
 
 
 GO
-ALTER PROCEDURE dbo.getDeposit
+CREATE PROCEDURE dbo.getDeposit
 					@DepositID INT
 AS
 BEGIN
@@ -634,7 +636,7 @@ GO
 
 -- Create trigger after update on Deposits
 GO
-ALTER TRIGGER trgInsertandDeleteWithdrawal
+CREATE TRIGGER trgInsertandDeleteWithdrawal
 ON dbo.Deposits
 AFTER UPDATE
 AS
@@ -658,7 +660,7 @@ BEGIN
 			--------
 			-- Tinh so ngay gui
 			DECLARE @NumOfDaysDeposited INT
-			SELECT @NumOfDaysDeposited = DATEDIFF(day, OpenedDate, GETDATE()) - 1 FROM deleted -- minutes for testing
+			SELECT @NumOfDaysDeposited = DATEDIFF(minute, OpenedDate, GETDATE()) - 1 FROM deleted -- minutes for testing
 			-- Kiem tra dieu kien so ngay gui
 			DECLARE @MinimumTimeToWithdrawal INT
 			SELECT @MinimumTimeToWithdrawal = MinimumTimeToWithdrawal FROM InterestTypes
@@ -736,7 +738,7 @@ BEGIN
 		-- Xoa Transaction truoc do neu la co ky han va rut truoc ky han
 			-- Tinh so ngay gui
 			DECLARE @NoDaysDeposited INT
-			SELECT @NoDaysDeposited = DATEDIFF(day, OpenedDate, @WithdrawalDate) - 1  -- minute for testing
+			SELECT @NoDaysDeposited = DATEDIFF(minute, OpenedDate, @WithdrawalDate) - 1  -- minute for testing
 				FROM Deposits
 				WHERE DepositID = @DepositID
 			-- Tim ky han
@@ -783,15 +785,18 @@ BEGIN
 	SELECT @CurrentWithdrawer = Withdrawer 
 	FROM Deposits WHERE @DepositID = DepositID 
 	IF (@CurrentWithdrawer IS NOT NULL)
-		SELECT 2 AS Error-- phieu da duoc rut
+		BEGIN
+			SELECT 2 AS Error-- phieu da duoc rut
+			RETURN
+		END
 	UPDATE Deposits
 	SET Withdrawer = @Withdrawer
 	WHERE DepositID = @DepositID 
 	-- noi dung can in ra (cung voi noi dung input)
 	SELECT TOP 1 C.CustomerID, CustomerName, -- thong tin khach hang
-			- Changes - Fund AS BankInterest, -- tong tien lai
+			ISNULL(-Changes - Fund , 0) AS BankInterest, -- tong tien lai
 			Fund,		-- tien gui
-			-Changes AS Withdrawn,  -- tong tien rut
+			ISNULL(-Changes, Fund) AS Withdrawn,  -- tong tien rut
 			TransactionDate		-- thoi gian rut
 		FROM Transactions T JOIN Deposits D ON T.DepositID = D.DepositID
 			 JOIN Customers C ON C.CustomerID = D.CustomerID

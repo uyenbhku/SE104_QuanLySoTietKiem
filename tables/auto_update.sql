@@ -8,7 +8,7 @@ Vao SQL Server Agent -> New Job
 				Thong so:
 				- Schedule type: recurring
 				- Frequency: occurs daily, recurs every 1 day
-				- Daily frequence: occurs onces at 12AM (0h)
+				- Daily frequence: occurs every 1 minute
 				- Start day: ngay hien tai
 				- No end date
 ==> Nhap OK
@@ -22,7 +22,7 @@ INSERT INTO Transactions
 SELECT Deposits.DepositID, 
 		Balance * InterestTypes.InterestRate / 100 * NoDays / 360, 
 		Balance * (1 + InterestTypes.InterestRate/100 * NoDays / 360), GETDATE()
-FROM (SELECT TOP 1 WITH TIES *, DATEDIFF(day, Transactions.TransactionDate, GETDATE()) AS NoDays -- doi day sang minute de test
+FROM (SELECT TOP 1 WITH TIES *, DATEDIFF(minute, Transactions.TransactionDate, GETDATE()) AS NoDays -- doi day sang minute de test
 		FROM Transactions 
 		WHERE Balance > 0 -- is not withdrawn yet
 		ORDER BY ROW_NUMBER() OVER(PARTITION BY DepositID ORDER BY TransactionID DESC)) 
