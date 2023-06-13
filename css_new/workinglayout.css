@@ -1,0 +1,27 @@
+@import url('sidebar.css');
+@import url("https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,300italic,600,600italic");
+@import url("https://fonts.googleapis.com/css?family=Helvetica");
+html {
+    font-size: 62.5%;
+}
+
+body {
+    font-family: 'Source Sans Pro', sans-serif;
+    font-style: normal;
+    /* font-size: 62.5%; */
+}
+
+.container {
+    border-radius: 5px;
+    border: rgb(208, 203, 203) solid 1px;
+    min-height: 97vh;
+    min-width: 97vw;
+    /* height: 97vh;
+    width: 97vw; */
+    display: flex;
+    overflow-y: hidden;
+}
+
+/* .hide_table {
+    display: none;
+} */
