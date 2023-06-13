@@ -1,0 +1,50 @@
+<div class="main">
+    <div class="mainHeader">
+        <button type="button" class="sidebarButton">
+            <i class="fa-solid fa-wallet fa-2xl"></i>
+        </button>
+        <p>Tạo phiếu gửi tiền mới</p>
+    </div>
+    <div class="wrapper">
+        <form action="#" id="form" method="POST">
+            <div class="citizenIDBox box">
+                <label for="citizenID">CCCD (CMND)</label>
+                <input type="text" id="citizenID" name="citizenID"
+                    placeholder="Nếu tồn tại CMND/CCCD thì tự động cập nhật thông tin" maxlength="12">
+            </div>
+            <div class="fullnameBox box">
+                <label for="fullname">Họ và tên</label>
+                <input type="text" id="fullname" name="fullname" placeholder="Nhập tên khách hàng" readonly
+                    maxlength="80">
+            </div>
+            <div class="addressBox box">
+                <label for="address">Địa chỉ</label>
+                <input type="text" id="address" name="address" placeholder="Nhập địa chỉ khách hàng " readonly
+                    maxlength="80">
+            </div>
+            <div class="phoneBox box">
+                <label for="phone">Điện thoại</label>
+                <input type="text" id="phone" name="phone" placeholder="Nhập số điện thoại khách hàng" readonly
+                    maxlength="11">
+            </div>
+            <div class="typeBox box">
+                <label for="type">Loại tiết kiệm</label>
+                <input id="type" name="type" placeholder="Cập nhật từ DB các loại tiết kiệm" list="choice">
+                <datalist id="choice">
+                    {{#each InterestType}}
+                    <option value="{{this.Term}} tháng">
+                        {{/each}}
+                </datalist>
+                <div id="type_warning"></div>
+            </div>
+            <div class="depositBox box">
+                <label for="deposit">Số tiền gửi</label>
+                <input type="number" id="deposit" name="deposit" placeholder="Cập nhật từ DB số tiền gửi tối thiểu"
+                    step="500" min={{Params}}>
+            </div>
+            <div id="btn_side">
+                <input id="confirmBtn" type="submit" value="Tạo"></input>
+                <a href="./home"><button id="gobackBtn" type="button">Quay lại</button></button></a>
+            </div>
+        </form>
+    </div>

@@ -1,0 +1,46 @@
+<div class="sidebar col-2 p-0">
+    <div class="sidebarHeader">
+        <a href="/home" class="sidebarHide">
+            <i class="fa-solid fa-wallet fa-xl"></i>
+            <span>Sổ tiết kiệm
+        </a>
+    </div>
+    <nav>
+        <ul>
+            <li>
+                <a href="/deposit" {{#if active.deposit}} class="active" {{/if}}>
+                    <i class="fa-solid fa-plus"></i>
+                    <span>Gửi tiền</span>
+                    <!--{{#if active.deposit}} <i class="iconActive"></i> {{/if}}-->
+                </a>
+            </li>
+            <li>
+                <a href="/withdraw" {{#if active.withdraw}} class="active" {{/if}}>
+                    <i class="fa-solid fa-arrow-down"></i>
+                    <span>Rút tiền</span>
+                    <!--{{#if active.withdraw}} <i class="iconActive"></i> {{/if}}-->
+                </a>
+            </li>
+            <li>
+                <a href="/search" {{#if active.search}} class="active" {{/if}}>
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <span>Tra cứu</span>
+                    <!--{{#if active.search}} <i class="iconActive"></i> {{/if}}-->
+                </a>
+            </li>
+            <li>
+                <a href="/report" {{#if active.report}} class="active" {{/if}}>
+                    <i class="fa-regular fa-file"></i>
+                    <span>Báo cáo</span>
+                    <!--{{#if active.report}} <i class="iconActive"></i> {{/if}}-->
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <div class="logoutButton">
+        <a href="/logout" class="">
+            <i class="icon iconLogout"></i>
+            <span>Logout</span>
+        </a>
+    </div>
+</div>
