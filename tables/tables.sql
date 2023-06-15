@@ -1,7 +1,10 @@
-﻿create database SOTIETKIEM
+create database SOTIETKIEM
 use SOTIETKIEM
 
-/*====================================================================
+
+
+
+/*======================================================================
 KHACHHANG
 ======================================================================*/
 
@@ -81,7 +84,7 @@ AS
 BEGIN
 	SET NOCOUNT ON
 	IF (NOT EXISTS (SELECT * FROM Customers WHERE CustomerID = @CustomerID))
-		RETURN 1
+		SELECT 1 AS err -- ko co khach hang
 	IF (@CitizenID IS NOT NULL)
 		BEGIN
 			UPDATE Customers
@@ -196,7 +199,7 @@ GO
 -- STORED PROCEDURE: Hide/Block Interest Type
 -- Define procedure
 GO
-create PROCEDURE dbo.blockInterestType 
+CREATE PROCEDURE dbo.blockInterestType 
 			@InterestTypeID INT
 AS
 BEGIN
@@ -206,8 +209,11 @@ BEGIN
 	WHERE InterestTypeID = @InterestTypeID
 	IF (EXISTS (SELECT * FROM InterestTypes 
 		WHERE InterestTypeID = @InterestTypeID))
-		RETURN 0 -- them thanh cong
-	ELSE RAISERROR(50008, -1, -1) -- khong co LoaiTK trong CSDL
+			RETURN  -- them thanh cong
+	ELSE 
+		BEGIN 
+			RAISERROR(50008, -1, -1) -- khong co LoaiTK trong CSDL
+		END
 END
 GO
 
@@ -225,7 +231,7 @@ BEGIN
 	WHERE InterestTypeID = @InterestTypeID
 	IF (EXISTS (SELECT * FROM InterestTypes 
 		WHERE InterestTypeID = @InterestTypeID))
-		RETURN 0 -- thanh cong
+			RETURN -- thanh cong
 	ELSE RAISERROR(50008, -1, -1) -- khong co MaLTK trong CSDL
 END
 GO
@@ -254,7 +260,7 @@ END
 GO
 
 GO
-create PROCEDURE dbo.updateInterestType 
+CREATE PROCEDURE dbo.updateInterestType 
 			@InterestTypeID INT, 
 			@NewMinimumTimeToWithdrawal INT = NULL
 AS
@@ -267,10 +273,9 @@ BEGIN
 			WHERE InterestTypeID = @InterestTypeID
 			IF (EXISTS (SELECT * FROM InterestTypes 
 				WHERE InterestTypeID = @InterestTypeID))
-				return 0 -- thanh cong
+					RETURN -- thanh cong
 		END
 	ELSE
-
 		RAISERROR(50008, -1, -1) -- loi khong co LoaiTK
 END
 GO
@@ -392,7 +397,7 @@ GO
 
 -- Define Procedure
 GO
-create PROCEDURE dbo.addDeposit 
+CREATE PROCEDURE dbo.addDeposit 
 					@CustomerID INT, 
 					@InterestTypeID INT, 
 					@Fund MONEY
@@ -403,8 +408,8 @@ BEGIN
 	IF (NOT EXISTS (SELECT * FROM InterestTypes WHERE @InterestTypeID = InterestTypeID) -- invalid Type
 		OR NOT EXISTS (SELECT * FROM Customers WHERE @CustomerID = CustomerID)) -- invalid customer
 		BEGIN
-			select 1 as err
-			RETURN 1 -- khong co KhachHang hoac LoaiTK
+			SELECT 1 AS err -- khong co KhachHang hoac LoaiTK
+			RETURN 
 		END
 	-- insert new record
 	DECLARE @OutputRecord TABLE (ID INT)
@@ -428,7 +433,7 @@ BEGIN
 	SET NOCOUNT ON
 	IF (NOT EXISTS (SELECT * FROM Deposits WHERE DepositID = @DepositID))
 		BEGIN
-			RETURN 1
+			SELECT 1 AS err -- khong co phieu trong DB
 		END
 	DECLARE @OpenedDate SMALLDATETIME
 	SELECT @OpenedDate = OpenedDate FROM Deposits
@@ -442,7 +447,7 @@ BEGIN
 
 	DELETE FROM Deposits
 	WHERE DepositID = @DepositID
-	RETURN 0
+	-- SELECT 0
 END
 GO
 
@@ -577,9 +582,8 @@ END
 GO
 
 
-
 GO
-create PROCEDURE dbo.getDeposit
+CREATE PROCEDURE dbo.getDeposit
 					@DepositID INT
 AS
 BEGIN
@@ -628,10 +632,9 @@ GO
 
 
 
-
 -- Create trigger after update on Deposits
 GO
-create TRIGGER trgInsertandDeleteWithdrawal
+CREATE TRIGGER trgInsertandDeleteWithdrawal
 ON dbo.Deposits
 AFTER UPDATE
 AS
@@ -763,10 +766,9 @@ END
 GO
 
 
-
 -- STORED PROCEDURE: ADD NEW WITHDRAWAL
 GO
-create PROCEDURE dbo.addWithdrawal
+CREATE PROCEDURE dbo.addWithdrawal
 			@DepositID INT,
 			@Withdrawer VARCHAR(40)
 AS
@@ -774,7 +776,7 @@ BEGIN
 	SET NOCOUNT ON
 	IF (NOT EXISTS (SELECT * FROM Deposits
 					WHERE DepositID = @DepositID))
-		SELECT 1 AS Error -- khong co phieu rut trong CSDL
+		SELECT 1 AS err -- khong co phieu rut trong CSDL
 	IF (@Withdrawer IS NULL)
 		RETURN 
 	DECLARE @CurrentWithdrawer VARCHAR(40)
@@ -782,7 +784,7 @@ BEGIN
 	FROM Deposits WHERE @DepositID = DepositID 
 	IF (@CurrentWithdrawer IS NOT NULL)
 		BEGIN
-			SELECT 2 AS Error-- phieu da duoc rut
+			SELECT 2 AS err -- phieu da duoc rut
 			RETURN
 		END
 	UPDATE Deposits
@@ -811,7 +813,7 @@ AS
 BEGIN
 	SET NOCOUNT ON
 	IF (NOT EXISTS (SELECT * FROM Transactions WHERE DepositID = @DepositID))
-		RETURN 1 --
+		SELECT 1 AS err --
 
 	-- cannot delete records that were created after 30 minutes
 	DECLARE @WithdrawalDate SMALLDATETIME
@@ -895,7 +897,7 @@ GO
 
 -- STORED PROCEDURE: ADD NEW TRANSACTION 
 GO
-create PROCEDURE dbo.addTransactions
+CREATE PROCEDURE dbo.addTransactions
 			@DepositID CHAR(10),
 			@Changes MONEY 
 AS
@@ -918,17 +920,17 @@ BEGIN
 END
 GO
 
+
 -- STORED PROCEDURE: Sum of active deposits (tong tien gui cua cac phieu gui chua rut)
 GO 
 CREATE PROCEDURE dbo.sumActiveDeposit 
 AS
 BEGIN
-	SELECT SUM(Fund) AS Total
+	SELECT ISNULL(SUM(Fund), 0) AS Total
 	FROM Deposits 
 	WHERE Withdrawer IS NULL
 END
 GO
-
 
 
 /*====================================================================
@@ -1029,10 +1031,8 @@ ADD CONSTRAINT FK_RecordedDate
 FOREIGN KEY (RecordedDate) REFERENCES ProfitReports(RecordedDate);
 
 
-
-
 GO 
-create PROCEDURE dbo.calculateReportByDay
+CREATE PROCEDURE dbo.calculateReportByDay
 				@Date DATE
 AS
 BEGIN
@@ -1095,7 +1095,7 @@ GO
 
 -- STORED PROCEDURE: MAKE REPORT By Day
 GO
-create PROCEDURE dbo.makeReportByDay
+CREATE PROCEDURE dbo.makeReportByDay
 					@Date DATE -- format 'ydm'
 AS 
 BEGIN
@@ -1120,10 +1120,9 @@ GO
 
 
 
-
 -- STORED PROCEDURE: Summary month report
 GO
-create PROCEDURE dbo.summaryMonthReport
+CREATE PROCEDURE dbo.summaryMonthReport
 					@Month INT,
 					@Year INT
 AS
@@ -1147,10 +1146,7 @@ BEGIN
 
 	WHILE (@Day < @NoDays)
 		BEGIN
-			IF (NOT EXISTS (SELECT * FROM ProfitReports WHERE @CurrentDate = RecordedDate))
-				BEGIN
-					EXEC dbo.calculateReportByDay @CurrentDate
-				END
+			EXEC dbo.calculateReportByDay @CurrentDate
 			SET @Day = @Day + 1
 			SET @CurrentDate = CONCAT(CONVERT(NVARCHAR, @Year),'-', CONVERT(NVARCHAR, @Month), '-', CONVERT(NVARCHAR, @Day))
 		END
@@ -1169,28 +1165,32 @@ END
 GO
 
 
-
-
 /*====================================================================
 NHOMNGUOIDUNG
 ======================================================================*/
 CREATE TABLE AccountTypes( -- NHOMNGUOIDUNG
-	AccountTypeID INT NOT NULL,
-	AccountTypeName VARCHAR(20)
+	AccountTypeID INT IDENTITY(10,1),
+	AccountTypeName VARCHAR(MAX) NOT NULL
 );
+
 
 ALTER TABLE AccountTypes 
 ADD CONSTRAINT PK_AccountTypes 
 PRIMARY KEY(AccountTypeID);
 
+
+INSERT INTO AccountTypes VALUES('Admin') -- quan tri he thong, ID = 10 
+INSERT INTO AccountTypes VALUES('Teller') -- giao dich vien, ID = 11 
+INSERT INTO AccountTypes VALUES('Others') -- khac, ID = 12 
+
 /*====================================================================
 NGUOIDUNG
 ======================================================================*/
 CREATE TABLE Accounts( -- NGUOIDUNG
-	AccountID INT NOT NULL,
-	Username VARCHAR(20),
-	AccountTypeID INT,
-	AccountPassword VARCHAR(50),
+	AccountID INT IDENTITY(10, 1),
+	Username VARCHAR(20) NOT NULL,
+	AccountPassword VARCHAR(50) NOT NULL,
+	AccountTypeID INT NOT NULL,
 );
 
 ALTER TABLE Accounts 
@@ -1200,14 +1200,12 @@ PRIMARY KEY(AccountID);
 ALTER TABLE Accounts 
 ADD CONSTRAINT FK_Accounts_AccountTypes 
 FOREIGN KEY (AccountTypeID) REFERENCES AccountTypes(AccountTypeID);
-
-
 /*====================================================================
 CHUCNANG
 ======================================================================*/
 CREATE TABLE UserFunctionality( -- CHUCNANG
 	UserFunctionalityID INT NOT NULL,
-	UserFunctionalityName VARCHAR(20),
+	UserFunctionalityName VARCHAR(MAX),
 	UFNDescription VARCHAR(100),
 );
 
@@ -1234,57 +1232,3 @@ FOREIGN KEY (AccountTypeID) REFERENCES AccountTypes(AccountTypeID);
 ALTER TABLE UserAuthorization 
 ADD CONSTRAINT FK_UserAuthorization_UserFunctionality 
 FOREIGN KEY (UserFunctionalityID) REFERENCES UserFunctionality(UserFunctionalityID);
-
-
---Test
-INSERT INTO Params VALUES (1000000)
-select * from Params
-EXECUTE  dbo.addInterestType 4.2, 3,342
-EXEC dbo.addInterestType 0.4, 0
-
-
-select * from InterestTypes where InterestTypeID='10'
-declare @d int
-EXEC  @d= dbo.addDeposit 10,'10',234222300
-print @d
- INSERT INTO Customers
- VALUES (N'Đăng Quang','324231','234234',N'Sài Gòn'),
-		(N'Đăng','332424231','23214234',N'Sài Gòn')
-
- exec addCustomer N'Dang quang','234234','32453451232423',N'Sài Gòn'
-
- INSERT INTO AccountTypes
- VALUES (2,N'Admin'),
-     (1,N'Nhân viên')
-
- INSERT INTO Accounts
- VALUES (2,'quang123',2,'123'),
-       (1,'quang',1,'123')
-exec  dbo.addWithdrawal 123123,'123123' 
- exec dbo.searchDeposit null,null,'2023-06-10'
-EXEC dbo.getCustomerDetailWithCitizenID '234234'
-exec dbo.makeReportByDay '2023-06-09'
-exec dbo.summaryMonthReport '6', '2023'
-EXEC dbo.getInterestType
--- SQLINES LICENSE FOR EVALUATION USE ONLY
-select * from Customers
-select * from Accounts
-select * from AccountTypes
-select sum(TotalRevenue) as sumRevenue ,sum(TotalCost) as sumCost,sum(TotalProfit) as sumProfit from ProfitReports
-select * from Deposits
-select * from ProfitReports
-select* from ReportDetails
-select max(AccountID) as max from Accounts
-select max(CustomerID) from Customers
-select *from Transactions  
-select InterestTypeID,Fund,Withdrawer from Deposits
-delete Transactions where DepositID=17
-delete  Deposits where DepositID=17
-delete  Customers where CustomerID>27
-select * from InterestTypes
-select * from Params
-exec dbo.addCustomer N'Đăng Quang',23432421211,12313132323,'Gia lai'
-delete ProfitReports
-use SOTIETKIEM
-
-exec dbo.getInterestType
