@@ -1,0 +1,121 @@
+.main {
+    /* background-color: #E5E5E5; */
+    background-image: linear-gradient(to bottom, #FFFFFF, #aaeaff);
+    min-width: calc(100% - 225px);
+    min-height: 100%;
+}
+
+.main .icon {
+    width: 4.4rem;
+    height: 4.4em;
+    background-position: 50%;
+}
+
+.mainHeader {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #003547;
+    font-weight: bold;
+}
+
+.mainHeader p {
+    font-size: 5rem;
+    margin: 2%;
+}
+
+.main .sidebarButton {
+    color: #003547;
+    background-color: #ffffff;
+    border-radius: 2rem;
+    border: none;
+    display: none;
+    width: 10%;
+}
+
+/* .main .sidebarButton:hover {
+    background-color: #c6c6c6;
+} */
+
+.main #form {
+    font-size: 20px;
+    color: #003547;
+    font-weight: bold;
+}
+
+.main #form .box {
+    padding: 0.5em 15%;
+    display: grid;
+    grid-template-columns: 20% 60%;
+    /* box-shadow: 0px 4px 4px 0px #00000040; */
+}
+
+.main #form .box label {
+    align-items: center;
+    display: flex;
+}
+
+.main #form .box input:not([type="radio"]) {
+    /* box-sizing: border-box; */
+    border-radius: 5px;
+    padding: 8px 20px;
+    box-shadow: 0px 4px 4px 0px #00000040;
+}
+
+.main #form .box input:read-only {
+    /* color:rgb(208, 203, 203); */
+    background-color: #ffffff;
+}
+
+/* .main #form .box div {
+      color: red;
+      font-size: 12px;
+      margin-top: 5px;
+      align-self: flex-start;
+      margin-left: 30px;
+  } */
+
+.wrapper {
+    position: relative;
+}
+
+.main #form #btn_side {
+    position: absolute;
+    right: 0;
+    margin-top: 20px;
+    width: 65%;
+    display: flex;
+    justify-content: start;
+}
+
+.main #form #btn_side button,
+.main #form #btn_side input {
+    height: 50px;
+    width: 120px;
+    color: #fff;
+    text-transform: uppercase;
+    font-weight: bold;
+    background: linear-gradient(65.44deg, #d01b1b 0%, #ff4242 94.64%);
+    border: 0px;
+    border-radius: 20px;
+    margin: 0px 5%;
+}
+
+button:hover {
+    cursor: pointer;
+
+}
+
+@media screen and (max-width: 720px) {
+    .sidebar {
+        display: none;
+    }
+
+    .main {
+        min-width: 100%;
+    }
+
+    .main .sidebarButton {
+        display: flex;
+    }
+}

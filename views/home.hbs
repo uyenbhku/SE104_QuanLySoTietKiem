@@ -1,0 +1,92 @@
+<div class="main">
+    <div class="mainDashboard">
+        <div class="dashboardHeader">
+            <button type="button" class="sidebarButton">
+                <i class="fa-solid fa-wallet fa-2xl"></i>
+            </button>
+            <p>Sổ tiết kiệm</p>
+            <div></div>
+        </div>
+        <div class="summary">
+            <div class="sum">
+                <i class="icon iconSum"></i>
+                <p><b>Tổng số tiền trong sổ</b></p>
+                <h1 id="sumDeposit">{{sumDeposit}}</h1>
+            </div>
+            <div class="send">
+                <i class="icon iconSend"></i>
+                <p><b>Số tiền đã gửi trong tháng này</b></p>
+                <h1 id="MonthDeposit">{{MonthDeposit}}</h1>
+            </div>
+            <div class="withdraw">
+                <i class="icon iconWithdraw"></i>
+                <p><b>Số tiền đã rút trong tháng này</b></p>
+                <h1 id="Monthwithdraw">{{Monthwithdraw}}</h1>
+            </div>
+        </div>
+        {{#if hideForm}}
+        <div class="leastBox box">
+            <form action="#" ,class="form" id="form" style="display: contents;">
+                <label for="money">Số tiền gửi tối thiểu</label>
+                <input type="text" id="money" name="money" value="{{Params}}">
+                <button id="changeBtn" type="submit" value="Thay đổi">Thay đổi</button>
+            </form>
+        </div>
+        {{/if}}
+        <div class="interestrateTable">
+            <h1>Bảng lãi suất tiết kiệm</h1>
+            {{#if hideForm}}
+            <table id="table" style="width: 70%; margin-left: auto; margin-right: auto;">
+                <tr>
+                    <th style="width: 20%;">Mã Loại</th>
+                    <th style="width: 40%;">Tên Loại</th>
+                    <th style="width: 20%;">Kỳ hạn</th>
+                    <th style="width: 20%;">Lãi suất</th>
+                    <th style="width: 20%;">Thời gian tối thiểu</th>
+                </tr>
+                {{#if InterestTypeadad}}
+                {{#each InterestTypeadad}}
+                <tr>
+                    <td>{{this.InterestTypeID}}</td>
+                    <td>{{this.InterestTypeName}}</td>
+                    <td>{{this.Term}}</td>
+                    <td>{{this.InterestRate }}</td>
+                    <td class="active">{{this.MinimumTimeToWithdrawal}}</td>
+                    <td><button class="myBtn">{{#if this.Status }}Mở{{else}}Khóa{{/if}}</button></td>
+                    <td><button class="updateBtn">Sửa</button></td>
+                </tr>
+                {{/each}}
+                {{/if}}
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td><input id="Term" type="text" placeholder="Nhập kì hạn"></td>
+                    <td><input id="InterestRate" type="text" placeholder="Nhập lãi xuất"></td>
+                    <td><input id="MinimumTimeToWithdrawal" type="text" placeholder="Nhập thời gian tối thiểu"></td>
+                    <td><button class="addBtn">Thêm</button></td>
+                </tr>
+            </table>
+            {{else}}
+
+            <table id="table" style="width: 60%; margin-left: auto; margin-right: auto;">
+                <tr>
+                    <th style="width: 20%;">Mã Loại</th>
+                    <th style="width: 40%;">Tên Loại</th>
+                    <th style="width: 20%;">Kỳ hạn</th>
+                    <th style="width: 20%;">Lãi suất</th>
+                </tr>
+                {{#if InterestTypeadad}}
+                {{#each InterestTypeadad}}
+                <tr>
+                    <td>{{this.InterestTypeID}}</td>
+                    <td>{{this.InterestTypeName}}</td>
+                    <td>{{this.Term}}</td>
+                    <td>{{this.InterestRate }}</td>
+                </tr>
+                {{/each}}
+                {{/if}}
+            </table>
+            {{/if}}
+        </div>
+    </div>
+</div>
