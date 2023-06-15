@@ -24,7 +24,7 @@ Sau khi tải project từ github về máy tính cá nhân, ta cần thực hi�
 * Bước 5: Sau khi đã hoàn thành các bước trên, trong Command prompt, sử dụng lệnh "npm start" để server được khởi chạy, port đang sử dụng sẽ được thông báo, truy cập vào để xem kết quả.
 
 ### VIDEO DEMO ĐỒ ÁN
-[Link video demo](https://youtu.be/AUGFdoGetgI)
+
 
 ### MỘT SỐ CHỨC NĂNG CƠ BẢN CỦA ĐỒ ÁN (CURRENT STATUS)
 * Đăng ký, đăng nhập tài khoản.
