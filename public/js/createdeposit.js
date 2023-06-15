@@ -70,6 +70,27 @@ function checkinput() {
     }
     return true;
 }
+var inputField = document.getElementById('type');
+var dataList = document.getElementById('choice').getElementsByTagName('option');
+console.log(dataList);
+inputField.addEventListener('change', function () {
+    var inputValue = inputField.value;
+    var valueExists = false;
+
+    for (var i = 0; i < dataList.length; i++) {
+        if (inputValue === dataList[i].value) {
+            valueExists = true;
+            break;
+        }
+    }
+
+    if (!valueExists) {
+        alert("Chọn loại phiếu gửi có sẵn!")
+        inputField.value = ''; // Xóa giá trị nhập vào nếu không tồn tại trong danh sách
+        return false;
+    }
+    return true;
+});
 document.getElementById("form").addEventListener('submit', function (event) {
     console.log('click')
     event.preventDefault();

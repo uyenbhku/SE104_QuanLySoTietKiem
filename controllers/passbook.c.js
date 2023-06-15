@@ -12,7 +12,6 @@ module.exports = {
     },
     createDepositGet: async (req, res) => {
         const InterestType = await passbookM.getInterestType()
-        console.log(InterestType);
         const Params = await passbookM.getParams()
         res.render('createDeposit', {
             active: { deposit: true },
