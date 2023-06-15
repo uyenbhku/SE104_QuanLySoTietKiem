@@ -1,0 +1,96 @@
+<div id="main">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 10px;
+        }
+
+        label {
+            display: inline-block;
+
+        }
+
+        p {
+            display: inline-block;
+            text-align: left;
+            margin: 0 20px 0 0;
+        }
+
+        .signature {
+            display: inline-block;
+            vertical-align: top;
+        }
+
+        .signature label {
+            margin-top: 10px;
+        }
+    </style>
+
+    <h1>PHIẾU GỬI TIỀN</h1>
+
+    <div class="form-group">
+        <label for="maKhachHang">Mã khách hàng:</label>
+        <p>{{data.CustomerID}}</p>
+    </div>
+
+    <div class="form-group">
+        <label for="tenKhachHang">Tên khách hàng:</label>
+        <p>{{data.CustomerName}}</p>
+        <label for="cccd">CCCD:</label>
+        <p>{{data.CitizenID}}</p>
+    </div>
+
+    <div class="form-group">
+        <label for="diaChi">Địa chỉ:</label>
+        <p>{{data.CustomerAddress}}</p>
+        <label for="soDienThoai">Số điện thoại:</label>
+        <p>{{data.PhoneNumber}}</p>
+    </div>
+
+    <div class="form-group">
+        <label for="maPhieuGui">Mã phiếu gửi:</label>
+        <p>{{data.DepositID}}</p>
+    </div>
+
+    <div class="form-group">
+        <label for="soTienGui">Số tiền gửi (VND):</label>
+        <p>{{data.Fund}}</p>
+        <label for="kyHan">Kỳ hạn:</label>
+        <p>{{data.Term}}</p>
+        <label for="laiSuat">Lãi suất:</label>
+        <p>{{data.InterestRate}}</p>
+    </div>
+
+    <div class="form-group">
+        <label for="ngayPhatHanh">Ngày phát hành:</label>
+        <p>{{data.OpenedDate}}</p>
+    </div>
+
+
+    <div class="form-group">
+        <div class="signature">
+            <label>Tên người giao dịch:</label>
+            <p></p>
+        </div>
+
+        <div class="signature">
+            <label>Giao dịch viên:</label>
+            <p></p>
+        </div>
+
+        <div class="signature">
+            <label>Ngân hàng phát hành:</label>
+            <p></p>
+        </div>
+    </div>
+    `;
+</div>
