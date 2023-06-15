@@ -56,7 +56,6 @@ module.exports = {
             res.json({ msg: `Thay đổi thành công` })
     },
     addInterestType: async (req, res) => {
-        console.log(req.body);
         const addInterestType = await passbookM.addInterestType(req.body.InterestRate, req.body.Term, req.body.MinimumTimeToWithdrawal)
         if (addInterestType == 'err')
             res.json({ msg: `Lỗi khi thêm loại tiết kiệm` })
