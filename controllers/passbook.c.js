@@ -61,7 +61,11 @@ module.exports = {
     },
     printDepositsGet: async (req, res) => {
         data = await passbookM.getDeposit(req.session.printdeposit.DepositID)
-        console.log(data[0]);
+        // var date = new Date(data[0].OpenedDate);
+        // var formattedDate = date.toLocaleString();
+        // console.log(formattedDate);
+        console.log(JSON.stringify(data[0].OpenedDate));
+        data[0].OpenedDate = JSON.parse(JSON.stringify(data[0].OpenedDate).replace('T', " ").replace('.000Z', ""))
         res.render('printDeposit', {
             layout: "print",
             title: "In phiếu gửi tiền",
@@ -103,6 +107,8 @@ module.exports = {
     printWithdrawGet: async (req, res) => {
         data = await passbookM.getDeposit(req.session.printdeposit.DepositID)
         data[0].Withdrawn = req.session.printdeposit.Withdrawn
+        data[0].OpenedDate = JSON.parse(JSON.stringify(data[0].OpenedDate).replace('T', " ").replace('.000Z', ""))
+        data[0].WithdrawalDate = JSON.parse(JSON.stringify(data[0].WithdrawalDate).replace('T', " ").replace('.000Z', ""))
         res.render('printWithdraw', {
             layout: "print",
             title: "In phiếu rút tiền",
