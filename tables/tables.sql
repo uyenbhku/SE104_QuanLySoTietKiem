@@ -245,8 +245,8 @@ AS
 BEGIN
 	DECLARE @InsTerm INT,
 			@DelTerm INT,
-			@InsInterestRate DECIMAL(3,2),
-			@DelInterestRate DECIMAL(3,2)
+			@InsInterestRate DECIMAL(17,2),
+			@DelInterestRate DECIMAL(17,2)
 	SELECT @InsTerm = Term, @InsInterestRate = InterestRate FROM Inserted
 	SELECT @DelTerm = Term, @DelInterestRate = InterestRate FROM Deleted
 	IF (@InsTerm != @DelTerm OR @InsInterestRate != @DelInterestRate)
@@ -285,7 +285,7 @@ GO
 GO
 CREATE PROCEDURE dbo.getInterestType
 			@Term INT = NULL,
-			@InterestRate DECIMAL(3,2) = NULL
+			@InterestRate DECIMAL(17,2) = NULL
 AS
 BEGIN
 	SET NOCOUNT ON;
@@ -699,7 +699,7 @@ BEGIN
 					IF (@RemaningNumOfDays != 0)
 						BEGIN
 							-- Lay lai suat cua loai khong ky han thap nhat
-							DECLARE @InterestRate DECIMAL(3,2)
+							DECLARE @InterestRate DECIMAL(17,2)
 							SELECT TOP 1 @InterestRate = InterestRate FROM InterestTypes 
 													WHERE Term = 0 ORDER BY InterestRate ASC
 							-- Cap nhat so du moi
