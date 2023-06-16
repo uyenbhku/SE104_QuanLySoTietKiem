@@ -27,7 +27,8 @@ Sau khi tải project từ github về máy tính cá nhân, ta cần thực hi�
 * Bước 4: Chạy `error_definition.sql` để định nghĩa các lỗi trong CSDL.
 * Bước 5: Config cập nhật tự động bằng SQL Server Agent Jobs (chi tiết config có trong file `auto_update.sql`).
 * Bước 6: Trong folder config, chỉnh sửa các thông tin của file `cnStr.js` đúng với thông tin của database đã được tạo(tên database, password,...).
-* Bước 7: Sau khi đã hoàn thành các bước trên, trong Command prompt, sử dụng lệnh `npm start` để server được khởi chạy, port đang sử dụng sẽ được thông báo, truy cập vào để xem kết quả.
+* Bước 7: Phải start SQL Server Browser trên SQL Server 2022 Configuration Manager.
+* Bước 8: Sau khi đã hoàn thành các bước trên, trong Command prompt, sử dụng lệnh `npm start` để server được khởi chạy, port đang sử dụng sẽ được thông báo, truy cập vào để xem kết quả.
 
 <!-- ### VIDEO DEMO ĐỒ ÁN
 [Link video demo](https://youtu.be/AUGFdoGetgI) -->
