@@ -1,5 +1,6 @@
 const userM = require('../models/user.m');
 const passbookM = require('../models/passbook.m');
+const { Int } = require('mssql');
 
 
 module.exports = {
@@ -44,7 +45,6 @@ module.exports = {
         else {
             CustomerID = customer[0].CustomerID
         }
-
         Deposits = {
             CustomerID: CustomerID,
             InterestTypeID: InterestTypeID[0].InterestTypeID,
@@ -142,7 +142,7 @@ module.exports = {
             if (deleteWithdrawal == "err")
                 return res.json({
                     status: false,
-                    mess: "Wawring: Không được đổi người rút sau khi lập phiếu gửi quá 30 phút"
+                    mess: "Warning: Không được đổi người rút sau khi lập phiếu gửi quá 30 phút"
                 })
         }
         updataCustomer = await userM.updateCustomer(req.body)

@@ -82,6 +82,9 @@ function getJSBTN() {
           document.querySelector("#myModal #rateID").value = depositInfo.InterestRate
           document.querySelector("#myModal #benefitID").value = depositInfo.TotalChanges
           document.querySelector("#myModal #remainderID").value = depositInfo.CurrentBalance
+          document.querySelector("#myModal #openDay").value = depositInfo.OpenedDate
+          document.querySelector("#myModal #noDepositDays").value = depositInfo.NoDaysDeposited
+
           if (depositInfo.Withdrawer == null) {
             document.querySelector("#myModal #getID").setAttribute('readonly', true)
             document.querySelector("#myModal #getID").value = null
