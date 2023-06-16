@@ -136,7 +136,7 @@ LOAITK
 -- Create InterestTypes table
 CREATE TABLE InterestTypes( 
 	InterestTypeID INT IDENTITY(10,1),		-- Ma loai tiet kiem
-	InterestRate DECIMAL(3,2) NOT NULL,		-- Lai suat (%)
+	InterestRate DECIMAL(17,2) NOT NULL,		-- Lai suat (%)
 	Term INT NOT NULL,						-- So thang trong ky han
 	MinimumTimeToWithdrawal INT NOT NULL,	-- Thoi gian toi thieu de duoc rut, mac dinh la 0
 );  
@@ -147,7 +147,6 @@ ALTER TABLE InterestTypes
 ADD Status BIT; -- NULL: opened, 1: blocked
 ALTER TABLE InterestTypes
 ADD InterestTypeName TEXT;
-
 
 
 -- TRIGGER: check duplicate
@@ -180,7 +179,7 @@ GO
 -- Define procedure
 GO
 CREATE PROCEDURE dbo.addInterestType
-			@InterestRate DECIMAL(3,2), 
+			@InterestRate DECIMAL(17,2), 
 			@Term INT,
 			@MinimumTimeToWithdrawal INT = 0
 AS
@@ -597,8 +596,10 @@ BEGIN
 					D.DepositID, Fund,
 					Term, InterestRate, 
 					ISNULL(-Changes - Fund, 0) AS TotalChanges, -- tinh tong tien lai
-					ISNULL(Balance, Fund) AS CurrentBalance, OpenedDate,
-					Withdrawer, TransactionDate AS WithdrawalDate
+					ISNULL(Balance, Fund) AS CurrentBalance,  -- so du hien tai
+					OpenedDate, -- ngay gui
+					Withdrawer, TransactionDate AS WithdrawalDate, -- ngay rut
+					DATEDIFF(minute, OpenedDate, TransactionDate) - 1 AS NoDaysDeposited -- so ngay gui -- minute for testing
 			FROM Deposits D LEFT JOIN Transactions T
 				ON T.DepositID = D.DepositID
 				JOIN Customers C 
@@ -617,7 +618,8 @@ BEGIN
 					Term, InterestRate, 
 					ISNULL(Balance - Fund, 0) AS TotalChanges,
 					ISNULL(Balance, Fund) AS CurrentBalance, OpenedDate,
-					Withdrawer, NULL AS WithdrawalDate
+					Withdrawer, NULL AS WithdrawalDate,
+					DATEDIFF(minute, OpenedDate, GETDATE()) - 1 AS NoDaysDeposited -- so ngay gui -- minute for testing
 			FROM Deposits D LEFT JOIN Transactions T
 				ON T.DepositID = D.DepositID
 				JOIN Customers C 
@@ -1037,15 +1039,9 @@ CREATE PROCEDURE dbo.calculateReportByDay
 AS
 BEGIN
 	SET NOCOUNT ON
-	-- if exists a report, only update existed today record 
 	IF (EXISTS (SELECT * FROM ProfitReports WHERE RecordedDate=@Date))
 		BEGIN
-			IF (DATEDIFF(day, @Date, GETDATE()) = 0) -- update today report
-				DELETE FROM ReportDetails WHERE RecordedDate=@Date
-			ELSE 
-				BEGIN
-					RETURN
-				END
+			DELETE FROM ReportDetails WHERE RecordedDate=@Date
 		END
 	-- create a new report
 	ELSE
@@ -1063,7 +1059,7 @@ BEGIN
 		FROM (
 				SELECT ISNULL(CAST(OpenedDate AS DATE), @Date) AS RecordedDate, 
 						 IT.InterestTypeID, 
-						 SUM(ISNULL(Fund,0)) AS TotalRevenueEachType
+						 ISNULL(SUM(Fund), 0) AS TotalRevenueEachType
 				FROM (SELECT * FROM Deposits WHERE CAST(OpenedDate AS DATE) = @Date) Opens -- bang phu luu cac PhieuGT vao ngay @Date
 				RIGHT JOIN InterestTypes IT ON IT.InterestTypeID = Opens.InterestTypeID
 				GROUP BY CAST(OpenedDate AS DATE), IT.InterestTypeID
@@ -1072,7 +1068,7 @@ BEGIN
 			(
 				SELECT ISNULL(CAST(TransactionDate AS DATE), @Date) AS RecordedDate, 
 						InterestTypes.InterestTypeID, 
-						-SUM(ISNULL(Changes, 0)) AS TotalCostEachType
+						ISNULL(-SUM(Changes), 0) AS TotalCostEachType
 				FROM (
 						SELECT * FROM Transactions
 						WHERE Changes < 0 -- is a withdrawal
@@ -1085,9 +1081,9 @@ BEGIN
 			ON Costs.InterestTypeID = Revenues.InterestTypeID
 	-- summary details
 	UPDATE ProfitReports
-	SET TotalRevenue = (SELECT SUM(Revenue) FROM ReportDetails WHERE RecordedDate = @Date),
-		TotalCost = (SELECT SUM(Cost) FROM ReportDetails WHERE RecordedDate = @Date),
-		TotalProfit = (SELECT SUM(Profit) FROM ReportDetails WHERE RecordedDate = @Date)
+	SET TotalRevenue = (SELECT ISNULL(SUM(Revenue),0) FROM ReportDetails WHERE RecordedDate = @Date),
+		TotalCost = (SELECT ISNULL(SUM(Cost), 0) FROM ReportDetails WHERE RecordedDate = @Date),
+		TotalProfit = (SELECT ISNULL(SUM(Profit), 0) FROM ReportDetails WHERE RecordedDate = @Date)
 	WHERE RecordedDate = @Date;
 END
 GO
@@ -1112,8 +1108,9 @@ BEGIN
 	-- return reports
 	SELECT TotalRevenue, TotalCost, TotalProfit
 		 FROM ProfitReports WHERE RecordedDate = @Date
-	SELECT InterestTypeID, Revenue, Cost, Profit
-		FROM ReportDetails WHERE RecordedDate = @Date
+	SELECT IT.InterestTypeID, InterestTypeName, Revenue, Cost, Profit
+		FROM ReportDetails RD JOIN InterestTypes IT ON IT.InterestTypeID = RD.InterestTypeID
+		WHERE RecordedDate = @Date
 		ORDER BY Profit DESC
 END
 GO
@@ -1169,28 +1166,22 @@ GO
 NHOMNGUOIDUNG
 ======================================================================*/
 CREATE TABLE AccountTypes( -- NHOMNGUOIDUNG
-	AccountTypeID INT IDENTITY(10,1),
-	AccountTypeName VARCHAR(MAX) NOT NULL
+	AccountTypeID INT NOT NULL,
+	AccountTypeName VARCHAR(20)
 );
-
 
 ALTER TABLE AccountTypes 
 ADD CONSTRAINT PK_AccountTypes 
 PRIMARY KEY(AccountTypeID);
 
-
-INSERT INTO AccountTypes VALUES('Admin') -- quan tri he thong, ID = 10 
-INSERT INTO AccountTypes VALUES('Teller') -- giao dich vien, ID = 11 
-INSERT INTO AccountTypes VALUES('Others') -- khac, ID = 12 
-
 /*====================================================================
 NGUOIDUNG
 ======================================================================*/
 CREATE TABLE Accounts( -- NGUOIDUNG
-	AccountID INT IDENTITY(10, 1),
-	Username VARCHAR(20) NOT NULL,
-	AccountPassword VARCHAR(50) NOT NULL,
-	AccountTypeID INT NOT NULL,
+	AccountID INT NOT NULL,
+	Username VARCHAR(20),
+	AccountPassword VARCHAR(50),
+	AccountTypeID INT,
 );
 
 ALTER TABLE Accounts 
@@ -1205,7 +1196,7 @@ CHUCNANG
 ======================================================================*/
 CREATE TABLE UserFunctionality( -- CHUCNANG
 	UserFunctionalityID INT NOT NULL,
-	UserFunctionalityName VARCHAR(MAX),
+	UserFunctionalityName VARCHAR(20),
 	UFNDescription VARCHAR(100),
 );
 
