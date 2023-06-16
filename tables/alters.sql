@@ -137,6 +137,8 @@ END
 GO
 
 
+
+
 --- 9h15
 -- Doi datatype
 ALTER TABLE InterestTypes
