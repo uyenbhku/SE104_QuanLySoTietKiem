@@ -69,7 +69,6 @@ function getJSBTN() {
       postData("/search/detail", info)
         .then((data) => {
           depositInfo = data.depositInfo
-
           document.querySelector("#myModal #customerID").value = depositInfo.CustomerID
           document.querySelector("#myModal #citizenID").value = depositInfo.CitizenID
           document.querySelector("#myModal #nameID").value = depositInfo.CustomerName
@@ -77,11 +76,11 @@ function getJSBTN() {
           document.querySelector("#myModal #addressID").value = depositInfo.CustomerAddress
 
           document.querySelector("#myModal #depositID").value = depositInfo.DepositID
-          document.querySelector("#myModal #moneyID").value = depositInfo.Fund
+          document.querySelector("#myModal #moneyID").value = formatCurrency(depositInfo.Fund)
           document.querySelector("#myModal #deadlineID").value = depositInfo.Term
           document.querySelector("#myModal #rateID").value = depositInfo.InterestRate
-          document.querySelector("#myModal #benefitID").value = depositInfo.TotalChanges
-          document.querySelector("#myModal #remainderID").value = depositInfo.CurrentBalance
+          document.querySelector("#myModal #benefitID").value = formatCurrency(depositInfo.TotalChanges)
+          document.querySelector("#myModal #remainderID").value = formatCurrency(depositInfo.CurrentBalance)
           document.querySelector("#myModal #openDay").value = depositInfo.OpenedDate.replace('T', " ").replace('.000Z', "")
           document.querySelector("#myModal #noDepositDays").value = depositInfo.NoDaysDeposited
           if (depositInfo.Withdrawer == null) {
@@ -140,7 +139,7 @@ formSearch.addEventListener('submit', function (event) {
             `<td>${datas.detailDeposit[i].DepositID}</th>` +
             `<td>${datas.detailDeposit[i].CustomerID}</th>` +
             `<td>${datas.detailDeposit[i].CustomerName}</th>` +
-            `<td>${datas.detailDeposit[i].CurrentBalance}</th>` +
+            `<td>${formatCurrency(datas.detailDeposit[i].CurrentBalance)}</th>` +
             `<td>${datas.detailDeposit[i].OpenedDate.replace('T', " ").replace('.000Z', "")}</th>` +
             '<td><button class="myBtn">Xem</button></td>' +
             '</tr>';

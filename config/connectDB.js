@@ -19,7 +19,7 @@ module.exports = {
         try {
             let Pool = await sql.connect(cnStr);
             const eventsList = await Pool.request().query(query)
-            sql.close()
+            // sql.close()
             return eventsList.recordsets;
         } catch (error) {
             console.log(error)
