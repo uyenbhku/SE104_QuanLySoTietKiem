@@ -7,6 +7,7 @@ function checkinput() {
         return false
     }
     if (parseInt($('#money').val()) < 0) {
+        window.location.replace("/home")
         alert("Không nhập số tiền âm!")
         return false
     }
@@ -81,6 +82,7 @@ for (var i = 0; i < btns.length; i++) {
         if (!document.getElementById("okBtn")) {
             this.innerHTML = "OK"
             cellsu = this.closest("tr").getElementsByTagName("td");
+            oldmin = cellsu[4].innerText
             cellsu[4].contentEditable = true
             cellsu[4].focus()
             cellsu[4].onblur = function () {
@@ -93,6 +95,7 @@ for (var i = 0; i < btns.length; i++) {
                 cells = this.closest("tr").getElementsByTagName("td");
                 if (parseInt(cells[4].innerText) < 0) {
                     alert("Vui lòng nhập ngày tối thiểu không âm")
+                    window.location.replace("/home")
                     return
                 }
                 else if (!isNaN(cells[4].innerText) && cells[4].innerText.trim() != "") {
