@@ -6,6 +6,10 @@ function checkinput() {
         alert("Vui lòng nhập số tiền không nhập chữ")
         return false
     }
+    if (parseInt($('#money').val()) < 0) {
+        alert("Không nhập số tiền âm!")
+        return false
+    }
     return true
 }
 function checkaddinput() {
@@ -17,6 +21,18 @@ function checkaddinput() {
         return false
     } if (isNaN($('#MinimumTimeToWithdrawal').val()) || $('#MinimumTimeToWithdrawal').val().trim() === "") {
         alert("Vui lòng nhập thời gian tối thiểu là số kỳ không nhập chữ")
+        return false
+    }
+    if (parseInt($('#Term').val()) < 0) {
+        alert("Không nhập số kì hạn âm!")
+        return false
+    }
+    if (parseInt($('#InterestRate').val()) < 0) {
+        alert("Không nhập số lãi suất âm!")
+        return false
+    }
+    if (parseInt($('#MinimumTimeToWithdrawal').val()) < 0) {
+        alert("Không nhập số ngày tối thiểu âm!")
         return false
     }
     return true
@@ -75,7 +91,11 @@ for (var i = 0; i < btns.length; i++) {
             var okbtns = document.getElementById("okBtn")
             okbtns.onclick = function (event) {
                 cells = this.closest("tr").getElementsByTagName("td");
-                if (!isNaN(cells[4].innerText) && cells[4].innerText.trim() != "") {
+                if (parseInt(cells[4].innerText) < 0) {
+                    alert("Vui lòng nhập ngày tối thiểu không âm")
+                    return
+                }
+                else if (!isNaN(cells[4].innerText) && cells[4].innerText.trim() != "") {
                     data = {
                         MinimumTimeToWithdrawal: cells[4].innerText,
                         InterestTypeID: cells[0].innerText
