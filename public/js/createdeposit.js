@@ -72,7 +72,6 @@ function checkinput() {
 }
 var inputField = document.getElementById('type');
 var dataList = document.getElementById('choice').getElementsByTagName('option');
-console.log(dataList);
 inputField.addEventListener('change', function () {
     var inputValue = inputField.value;
     var valueExists = false;

@@ -82,9 +82,8 @@ function getJSBTN() {
           document.querySelector("#myModal #rateID").value = depositInfo.InterestRate
           document.querySelector("#myModal #benefitID").value = depositInfo.TotalChanges
           document.querySelector("#myModal #remainderID").value = depositInfo.CurrentBalance
-          document.querySelector("#myModal #openDay").value = depositInfo.OpenedDate
+          document.querySelector("#myModal #openDay").value = depositInfo.OpenedDate.replace('T', " ").replace('.000Z', "")
           document.querySelector("#myModal #noDepositDays").value = depositInfo.NoDaysDeposited
-
           if (depositInfo.Withdrawer == null) {
             document.querySelector("#myModal #getID").setAttribute('readonly', true)
             document.querySelector("#myModal #getID").value = null
@@ -94,7 +93,7 @@ function getJSBTN() {
             document.querySelector("#myModal #getID").value = depositInfo.Withdrawer
           }
 
-          document.querySelector("#myModal #dateID").value = (depositInfo.WithdrawalDate === null) ? null : depositInfo.WithdrawalDate.split("T")[0]
+          document.querySelector("#myModal #dateID").value = (depositInfo.WithdrawalDate === null) ? null : depositInfo.WithdrawalDate.replace('T', " ").replace('.000Z', "")
         }
         )
     };
