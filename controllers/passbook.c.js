@@ -27,7 +27,7 @@ module.exports = {
     },
     createDepositPost: async (req, res) => {
         const customer = await userM.getCustomerDetailWithCitizenID(req.body.citizenID)
-        const InterestTypeID = await passbookM.getInterestType(req.body.type.split(' ')[0])
+        const InterestTypeID = await passbookM.getInterestType(req.body.type.split(' ')[0], req.body.type.split(' ')[3].replace('%', ''))
         var CustomerID = -1
         if (customer.length == 0) {
             Customers = {
@@ -61,6 +61,7 @@ module.exports = {
     },
     printDepositsGet: async (req, res) => {
         data = await passbookM.getDeposit(req.session.printdeposit.DepositID)
+        console.log(data[0]);
         res.render('printDeposit', {
             layout: "print",
             title: "In phiếu gửi tiền",

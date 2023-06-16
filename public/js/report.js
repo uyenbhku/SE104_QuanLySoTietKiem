@@ -41,7 +41,7 @@ document.getElementById('form').addEventListener('submit', function (event) {
                 for (i in totalInterestTypes) {
                     var newRow = '<tr>' +
                         `<td>${i}</th>` +
-                        `<td>${totalInterestTypes[i].InterestTypeID}</th>` +
+                        `<td>${totalInterestTypes[i].InterestTypeName}</th>` +
                         `<td>${totalInterestTypes[i].Revenue}</th>` +
                         `<td>${totalInterestTypes[i].Cost}</th>` +
                         `<td>${totalInterestTypes[i].Profit}</th>` +

@@ -32,7 +32,7 @@
                 <input id="type" name="type" placeholder="Chọn loại tiết kiệm" list="choice" autocomplete="off">
                 <datalist id="choice">
                     {{#each InterestType}}
-                    <option value="{{this.Term}} tháng">
+                    <option value="{{this.Term}} tháng - {{this.InterestRate}}%">
                         {{/each}}
                 </datalist>
                 <div id="type_warning"></div>
