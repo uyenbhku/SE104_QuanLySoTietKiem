@@ -26,9 +26,9 @@ document.getElementById('form').addEventListener('submit', function (event) {
                 }
                 total = data.detailReport[0][0]
                 totalInterestTypes = data.detailReport[1]
-                document.getElementById('get').value = total.TotalRevenue
-                document.getElementById('pay').value = total.TotalCost
-                document.getElementById('benefit').value = total.TotalProfit
+                document.getElementById('get').value = formatCurrency(total.TotalRevenue)
+                document.getElementById('pay').value = formatCurrency(total.TotalCost)
+                document.getElementById('benefit').value = formatCurrency(total.TotalProfit)
 
                 var TableBody = document.querySelector('#tbody');
                 while (TableBody.firstChild) {
@@ -42,9 +42,9 @@ document.getElementById('form').addEventListener('submit', function (event) {
                     var newRow = '<tr>' +
                         `<td>${i}</th>` +
                         `<td>${totalInterestTypes[i].InterestTypeName}</th>` +
-                        `<td>${totalInterestTypes[i].Revenue}</th>` +
-                        `<td>${totalInterestTypes[i].Cost}</th>` +
-                        `<td>${totalInterestTypes[i].Profit}</th>` +
+                        `<td>${formatCurrency(totalInterestTypes[i].Revenue)}</th>` +
+                        `<td>${formatCurrency(totalInterestTypes[i].Cost)}</th>` +
+                        `<td>${formatCurrency(totalInterestTypes[i].Profit)}</th>` +
                         '</tr>';
                     TableBody.insertAdjacentHTML('beforeend', newRow);
                 }
