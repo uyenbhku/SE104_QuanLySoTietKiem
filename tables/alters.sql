@@ -48,7 +48,7 @@ BEGIN
 			) AS Costs -- bang phu luu ngay rut, loaiTK, tong tien rut ra loaiTK do
 			ON Costs.InterestTypeID = Revenues.InterestTypeID
 	-- summary details
-	UPDATE ProfitReports
+	UPDATE ProfitReports 
 	SET TotalRevenue = (SELECT ISNULL(SUM(Revenue),0) FROM ReportDetails WHERE RecordedDate = @Date),
 		TotalCost = (SELECT ISNULL(SUM(Cost), 0) FROM ReportDetails WHERE RecordedDate = @Date),
 		TotalProfit = (SELECT ISNULL(SUM(Profit), 0) FROM ReportDetails WHERE RecordedDate = @Date)
@@ -328,6 +328,28 @@ BEGIN
 								WHERE TransactionID = @TransactionID			
 						END
 				END
+		END
+END
+GO
+
+
+
+GO
+ALTER TRIGGER dbo.trgCheckDuplicate
+ON InterestTypes
+AFTER INSERT
+AS
+BEGIN	
+	DECLARE @InterestTypeID INT = NULL
+	SELECT @InterestTypeID = InterestTypeID
+	FROM InterestTypes IT
+	WHERE EXISTS (SELECT * FROM inserted i 
+					WHERE i.InterestRate = IT.InterestRate AND i.Term = IT.Term
+					AND i.InterestTypeID != IT.InterestTypeID)
+
+	IF (@InterestTypeID IS NOT NULL)  -- have duplicate
+		BEGIN
+			ROLLBACK TRANSACTION
 		END
 END
 GO

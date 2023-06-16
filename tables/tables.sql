@@ -166,10 +166,6 @@ BEGIN
 	IF (@InterestTypeID IS NOT NULL)  -- have duplicate
 		BEGIN
 			ROLLBACK TRANSACTION
-			-- unblock
-			UPDATE InterestTypes
-			SET Status = NULL -- unblocked
-			WHERE InterestTypeID = @InterestTypeID
 		END
 END
 GO
