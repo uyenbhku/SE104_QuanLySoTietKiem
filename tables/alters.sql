@@ -135,3 +135,25 @@ BEGIN
 		ORDER BY Profit DESC
 END
 GO
+
+
+--- 9h15
+-- Doi datatype
+ALTER TABLE InterestTypes
+ALTER COLUMN InterestRate DECIMAL(17, 2)
+
+
+-- Doi datatype
+ALTER PROCEDURE dbo.addInterestType
+			@InterestRate DECIMAL(17,2), 
+			@Term INT,
+			@MinimumTimeToWithdrawal INT = 0
+AS
+BEGIN
+	SET NOCOUNT ON
+	DECLARE @TypeName VARCHAR(11)
+	SELECT @TypeName = 'LS' + CONVERT(VARCHAR, @InterestRate) + '_KH' + CONVERT(VARCHAR, @Term)
+	INSERT INTO InterestTypes (InterestRate, Term, MinimumTimeToWithdrawal, InterestTypeName)
+	VALUES (@InterestRate, @Term, @MinimumTimeToWithdrawal, @TypeName)
+		-- return 0 thanh cong
+END
