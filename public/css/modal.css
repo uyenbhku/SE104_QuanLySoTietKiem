@@ -83,7 +83,7 @@
 
 .main .modal-content .customerBody .smallbox input:read-only {
     /* color:rgb(208, 203, 203); */
-    background-color: #ffffff;
+    background-color: #cccccc;
 }
 
 .main .modal-content .customerHeader {
@@ -117,7 +117,7 @@
 
 .main .modal-content .depositBody .smallbox input:read-only {
     /* color:rgb(208, 203, 203); */
-    background-color: #ffffff;
+    background-color: #cccccc;
 }
 
 .main .modal-content .depositHeader {
