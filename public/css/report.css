@@ -2,13 +2,20 @@
   font-size: 18px;
   color: #003547;
   margin-top: 5em;
+  margin-bottom: 5em;
   font-weight: bold;
+}
+
+.main #report p {
+  align-items: center;
+  font-size: 28px;
+  padding: 0 33%;
 }
 
 .main #report .box {
   padding: 0.5em 15%;
   display: grid;
-  grid-template-columns: 20% 80%;
+  grid-template-columns: 20% 60%;
   /* box-shadow: 0px 4px 4px 0px #00000040; */
 }
 
@@ -23,3 +30,4 @@
   /* color:rgb(208, 203, 203); */
   background-color: #ffffff;
 }
+
