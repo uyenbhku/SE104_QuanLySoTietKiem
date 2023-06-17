@@ -64,7 +64,7 @@
 
 .main #form .box input:read-only {
     /* color:rgb(208, 203, 203); */
-    background-color: #ffffff;
+    background-color: #cccccc;
 }
 
 /* .main #form .box div {
