@@ -32,6 +32,8 @@ module.exports = {
             sumDeposit: sumDeposit[0].Total == null ? 0 : sumDeposit[0].Total,
             Monthwithdraw: monthReport[0].MonthCost == null ? 0 : monthReport[0].MonthCost,
             MonthDeposit: monthReport[0].MonthRevenue == null ? 0 : monthReport[0].MonthRevenue,
+            month: currentDate.getMonth() + 1,
+            year: currentDate.getFullYear(),
             hideForm: isAdmin,
             Params: (Params == 0) ? 0 : Params[0].MinimumDeposit,
         })

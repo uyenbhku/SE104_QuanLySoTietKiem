@@ -10,17 +10,17 @@
         <div class="summary">
             <div class="sum">
                 <i class="icon iconSum"></i>
-                <p><b>Tổng số tiền trong sổ</b></p>
+                <p><b>Tổng số tiền gửi trong sổ</b></p>
                 <h1 id="sumDeposit">{{sumDeposit}}</h1>
             </div>
             <div class="send">
                 <i class="icon iconSend"></i>
-                <p><b>Số tiền đã gửi trong tháng này</b></p>
+                <p><b>Số tiền đã gửi trong tháng {{month}}/{{year}}</b></p>
                 <h1 id="MonthDeposit">{{MonthDeposit}}</h1>
             </div>
             <div class="withdraw">
                 <i class="icon iconWithdraw"></i>
-                <p><b>Số tiền đã rút trong tháng này</b></p>
+                <p><b>Số tiền đã rút trong tháng {{month}}/{{year}}</b></p>
                 <h1 id="Monthwithdraw">{{Monthwithdraw}}</h1>
             </div>
         </div>
@@ -42,7 +42,7 @@
                     <th style="width: 40%;">Tên Loại</th>
                     <th style="width: 20%;">Kỳ hạn (Tháng)</th>
                     <th style="width: 20%;">Lãi suất (%)</th>
-                    <th style="width: 20%;">Thời gian tối thiểu (Ngày)</th>
+                    <th style="width: 20%;">Thời gian rút tối thiểu (Ngày)</th>
                 </tr>
                 {{#if InterestTypeadad}}
                 {{#each InterestTypeadad}}

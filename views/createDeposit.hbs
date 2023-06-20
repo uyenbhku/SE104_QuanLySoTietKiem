@@ -8,27 +8,27 @@
     <div class="wrapper">
         <form action="#" id="form" method="POST">
             <div class="citizenIDBox box">
-                <label for="citizenID">CMND/CCCD:</label>
+                <label for="citizenID">CMND/CCCD<div class="asterisk" style="color:red;">*</div>:</label> 
                 <input type="text" id="citizenID" name="citizenID"
                     placeholder="Nếu tồn tại CMND/CCCD thì tự động cập nhật thông tin" maxlength="12">
             </div>
             <div class="fullnameBox box">
-                <label for="fullname">Họ và tên:</label>
+                <label for="fullname">Họ và tên<div class="asterisk" style="color:red;">*</div>:</label>
                 <input type="text" id="fullname" name="fullname" placeholder="Nhập tên khách hàng" readonly
                     maxlength="80">
             </div>
             <div class="addressBox box">
-                <label for="address">Địa chỉ:</label>
+                <label for="address">Địa chỉ<div class="asterisk" style="color:red;">*</div>:</label> 
                 <input type="text" id="address" name="address" placeholder="Nhập địa chỉ khách hàng " readonly
                     maxlength="80">
             </div>
             <div class="phoneBox box">
-                <label for="phone">Điện thoại:</label>
+                <label for="phone">Điện thoại<div class="asterisk" style="color:red;">*</div>:</label>
                 <input type="text" id="phone" name="phone" placeholder="Nhập số điện thoại khách hàng" readonly
                     maxlength="11">
             </div>
             <div class="typeBox box">
-                <label for="type">Loại tiết kiệm: </label>
+                <label for="type">Loại tiết kiệm<div class="asterisk" style="color:red;">*</div>: </label> 
                 <input id="type" name="type" placeholder="Chọn loại tiết kiệm" list="choice" autocomplete="off">
                 <datalist id="choice">
                     {{#each InterestType}}
@@ -38,7 +38,7 @@
                 <div id="type_warning"></div>
             </div>
             <div class="depositBox box">
-                <label for="deposit">Số tiền gửi:</label>
+                <label for="deposit">Số tiền gửi<div class="asterisk" style="color:red;">*</div>:</label> 
                 <input type="number" id="deposit" name="deposit" placeholder="Nhập số tiền gửi" step="500"
                     min={{Params}}>
             </div>
