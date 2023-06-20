@@ -15,7 +15,7 @@
 ### THÔNG TIN CƠ BẢN
 Đồ án đã sử dụng các công cụ/ngôn ngữ sau trong suốt quá trình thực hiện:
 * Front-end: HTML, CSS và Javascript.
-* Back-end: Javascript trên môi trường nodeJS.
+* Back-end: Javascript trên môi trường NodeJS.
 * Cơ sở dữ liệu: SQL Server.
 
 ### CÁCH CHẠY PROJECT TRÊN LOCAL PC
@@ -34,19 +34,22 @@ Sau khi tải project từ github về máy tính cá nhân, ta cần thực hi�
 [Link video demo](https://youtu.be/AUGFdoGetgI) -->
 
 ### MỘT SỐ CHỨC NĂNG CƠ BẢN CỦA ĐỒ ÁN (CURRENT STATUS)
+* Quản lý sổ tiết kiệm theo phiếu.
 * Đăng nhập tài khoản.
 * Tạo phiếu gửi tiết kiệm với 3 loại tiết kiệm là: không kỳ hạn, kỳ hạn 3 tháng và kỳ hạn 6 tháng.
 * Rút tiền với phiếu gửi tương ứng giữa kỳ, cuối kỳ.
-* Cập nhật tiền lãi tự động, tự động tái tục.
-* Thông báo biến động số dư, hiển thị rõ số tiền đã gửi/số tiền đã rút trong tháng.
-* Lập báo cáo gửi/rút theo ngày.
+* In phiếu rút và phiếu gửi.
+* Cập nhật tiền lãi tự động (để demo thì nhóm đã scale theo phút), tự động tái tục cho đến khi tạo phiếu rút.
+* Tra cứu phiếu gửi theo CMND/CCCD, ngày gửi, mã phiếu gửi.
+* Lập báo cáo doanh số theo ngày.
+* Theo dõi tình hình doanh số tháng hiện tại.
+* Thay đổi quy định (thêm/khóa/mở loại tiết kiệm, sửa ngày rút tối thiểu, tiền gửi tối thiểu)
 
 
 ### CÁC DỰ ĐỊNH PHÁT TRIỂN TIẾP THEO (FUTURE PLAN)
-* Hoàn thiện hơn chức năng "tái tục"(Gửi lại sổ 1 lần nữa đối với những sổ đã đến kỳ hạn, tăng số lần gửi của sổ thêm 1)
-* Hoàn thiện chức năng thông báo chi tiết biến động số dư, hiện tại server chỉ thông báo số tiền được gửi vào chứ chưa thông báo số tiền đã được rút ra, đồng thời cần phải xử lý database lại để chức năng thông báo biến động số dư hoạt động hiệu quả hơn, giảm số lần phải truy suất trong database.
-* Chỉnh sửa lại các lỗi đã phát hiện ra trong quá trình testing.
-* Tìm phương pháp deploy để project trở thành một phần mềm đúng nghĩa.
-* Làm chức năng tạo báo cáo chi tiết trong tháng, nếu có thể sẽ nghiên cứu để xuất ra file. 
-
- 
+* Chỉnh sửa giao diện cho thân thiện với người dùng hơn (hiển thị nhiều thông tin hơn) và tăng tính tiện lợi.
+* Hoàn thiện tính năng thiết kế lãi bậc thang.
+* Thêm tính năng in báo cáo.
+* Hoàn thiện tính năng phân quyền.
+* Thêm bộ lọc, tính năng sắp xếp kết quả tra cứu.
+* Thêm tính năng sao kê dòng tiền phiếu gửi.
